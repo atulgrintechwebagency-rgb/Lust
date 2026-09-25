@@ -1,0 +1,163 @@
+/* =========================================================
+   SITE FOOTER WRAPPER CONTAINER
+========================================================= */
+.site-footer {
+  width: 100%;
+  background: #000000;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 16px 0;
+  box-sizing: border-box;
+}
+
+.footer-container-inner {
+  min-height: 54px;
+}
+
+/* === LEFT LAYOUT: LOGO & SLOGAN STRING === */
+.footer-logo-link {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.footer-logo-img {
+  width: 120px;
+  object-fit: contain;
+  display: block;
+}
+
+/* Red slim vertical line dividing brand and typography */
+.footer-slogan-divider {
+  width: 1px;
+  height: 18px;
+  background-color: var(--color-primary);
+  margin-inline: 18px;
+  opacity: 0.8;
+  display: inline-block;
+}
+
+.footer-slogan-text {
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--white-40);
+  margin: 0;
+  letter-spacing: 0.01em;
+}
+
+/* === RIGHT LAYOUT: SOCIAL CONNECTIONS & SCROLL BUTTON === */
+.footer-follow-label {
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--white-40);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-right: 18px;
+}
+
+.footer-social-links {
+  gap: 18px;
+  margin-right: 20px;
+}
+
+.social-icon-anchor {
+  color: var(--white-60);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color var(--transition-fast), transform var(--transition-fast);
+}
+
+.social-icon-anchor:hover {
+  color: var(--white-100);
+  transform: translateY(-1px);
+}
+
+/* Back-to-top rounded button framing metrics */
+.footer-scroll-top-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--white-06);
+  border: 1px solid var(--white-12);
+  color: var(--white-70);
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast), transform var(--transition-fast);
+}
+
+.footer-scroll-top-btn:hover {
+  background: var(--primary-10);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  transform: translateY(-2px);
+}
+
+/* =========================================================
+   RESPONSIVE MEDIA QUERIES BREAKPOINTS
+========================================================= */
+@media (max-width: 900px) {
+  .footer-slogan-divider {
+    margin-inline: 14px;
+  }
+  
+  .footer-slogan-text {
+    font-size: 0.76rem;
+  }
+  
+  .footer-follow-label {
+    margin-right: 12px;
+    font-size: 0.72rem;
+  }
+  
+  .footer-social-links {
+    gap: 14px;
+    margin-right: 14px;
+  }
+}
+
+/* Clean stacked fallback adjustment loops optimizing compact mobile layouts */
+@media (max-width: 680px) {
+  .site-footer {
+    padding: 24px 0;
+  }
+
+  .footer-container-inner {
+    flex-direction: column !important;
+    gap: 20px;
+    justify-content: center !important;
+    text-align: center;
+  }
+
+  .footer-left {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .footer-slogan-divider {
+    display: none; /* Strip out visual line block spacing rules on vertical feeds */
+  }
+
+  .footer-right {
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .footer-follow-label {
+    margin-right: 0;
+  }
+
+  .footer-social-links {
+    margin-right: 0;
+    gap: 20px;
+  }
+}
+
+button.footer-scroll-top-btn.flex-center {
+    position: fixed;
+    bottom: 50px;
+    right: 20px;
+    z-index: 99;
+    display: none;
+}

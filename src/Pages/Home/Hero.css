@@ -1,0 +1,818 @@
+
+/* ==== HERO BANNER ===== */
+
+.hero-section {
+  position: relative;
+  width: 100%;
+  min-height: 720px;
+  display: flex;
+  align-items: center;
+  padding-top: var(--header-height);
+  padding-bottom: 120px;
+  box-sizing: border-box;
+  overflow: hidden;
+  background: var(--color-black);
+}
+
+/* =========================================================
+   HERO BACKGROUND
+========================================================= */
+
+.hero-bg-wrapper {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.hero-background-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  object-position: center right;
+}
+
+/* Global image treatment */
+.hero-gradient-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+
+  background:
+    linear-gradient(
+      90deg,
+      var(--black-100) 0%,
+      var(--black-90) 20%,
+      var(--black-80) 38%,
+      var(--black-50) 55%,
+      var(--black-15) 75%,
+      transparent 100%
+    );
+}
+
+/* Optional subtle wine atmosphere */
+.hero-gradient-overlay::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+
+  background:
+    linear-gradient(
+      180deg,
+      transparent 55%,
+      var(--wine-30) 100%
+    );
+
+  pointer-events: none;
+}
+
+/* =========================================================
+   HERO CONTAINER
+========================================================= */
+
+.hero-container {
+  position: relative;
+  z-index: 3;
+
+}
+
+/*
+  .hero-container should normally contain the global
+  .container class in markup.
+
+  Example:
+  <section class="hero-section">
+    <div class="hero-container container">
+      ...
+    </div>
+  </section>
+*/
+
+/* =========================================================
+   HERO MAIN LAYOUT
+========================================================= */
+
+.hero-main-layout {
+  width: 100%;
+
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+
+  align-items: center;
+  gap: var(--gap-xl, 45px);
+}
+
+/* =========================================================
+   HERO CONTENT
+========================================================= */
+
+.hero-content-wrapper {
+  width: 100%;
+  max-width: 720px;
+}
+
+/* Global section-eyebrow styling compatibility */
+.hero-custom-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  margin-bottom: 15px;
+
+  color: var(--color-primary);
+
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1.3;
+
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.hero-custom-eyebrow::before {
+  content: "";
+
+  width: 24px;
+  height: 1px;
+
+  flex-shrink: 0;
+
+  background: currentColor;
+}
+
+/* =========================================================
+   HERO TYPOGRAPHY
+========================================================= */
+
+.hero-title {
+  margin: 0 0 22px;
+
+  color: var(--white-100);
+  font-family: var(--font-heading);
+
+  font-size: clamp(
+    3rem,
+    6vw,
+    5.2rem
+  );
+  font-weight: 600;
+  line-height: var(--line-height-heading);
+
+  letter-spacing: -0.035em;
+}
+
+.hero-description {
+  max-width: 580px;
+
+  margin: 0 0 34px;
+
+  color: var(--white-60);
+
+  font-family: var(--font-body);
+  font-size: var(--font-size-md);
+  line-height: var(--line-height-body);
+}
+
+/* =========================================================
+   HERO ACTIONS
+========================================================= */
+
+.hero-actions-group {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+
+  gap: 16px;
+
+  margin-bottom: 34px;
+}
+
+/*
+  These classes now extend the global button system. 
+*/
+
+.hero-btn-chat {
+
+
+  padding-inline: 30px;
+
+  border-radius: var(--radius-sm);
+
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.hero-btn-chat svg {
+  transition: transform var(--transition-fast);
+}
+
+.hero-btn-chat:hover svg {
+  transform: translateX(4px);
+}
+
+.hero-btn-explore {
+
+  padding-inline: 30px;
+
+  border-radius: var(--radius-sm);
+
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+/* =========================================================
+   TRUST / CHECK ARRAY
+========================================================= */
+
+.hero-trust-bullets-row {
+  display: flex;
+  align-items: center;
+
+  gap: 24px;
+
+  flex-wrap: wrap;
+}
+
+.trust-bullet {
+  display: inline-flex;
+  align-items: center;
+
+  gap: 8px;
+
+  color: var(--white-70);
+
+  font-family: var(--font-body);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.trust-bullet svg {
+  flex-shrink: 0;
+  color: var(--color-primary);
+}
+
+/* =========================================================
+   RIGHT SIDE HERO VISUAL
+========================================================= */
+
+.hero-visual-container {
+  position: relative;
+
+  width: 100%;
+  min-height: 480px;
+  height: 100%;
+}
+
+/* =========================================================
+   FLOATING SIGNATURE
+========================================================= */
+
+.floating-badge {
+  position: absolute;
+
+  z-index: 4;
+
+  pointer-events: none;
+  user-select: none;
+
+  animation: floatingGently 6s ease-in-out infinite;
+}
+
+.badge-neon {
+  top: 5%;
+  right: -15%;
+  display: flex;
+  align-items: flex-end;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.neon-text {
+  margin: 0;
+
+  color: var(--color-primary);
+
+  font-family: "Alex Brush", cursive;
+
+  font-size: 45px;
+  font-weight: 400;
+  line-height: 45px;
+
+  text-shadow:
+    0 0 8px var(--primary-70),
+    0 0 25px var(--primary-40),
+    0 0 50px var(--primary-15);
+}
+
+.neon-heart {
+    position: absolute;
+    bottom: 0;
+    margin-top: 6px;
+    align-self: flex-start;
+    filter: drop-shadow(0 0 6px rgba(255, 27, 34, 0.7));
+    right: -23px;
+}
+
+@keyframes floatingGently {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-12px);
+  }
+}
+
+/* =========================================================
+   HERO FEATURE BAR
+========================================================= */
+
+.hero-features-bar {
+  position: absolute;
+
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  z-index: 5;
+
+  width: 100%;
+
+  padding-bottom: 24px;
+
+  box-sizing: border-box;
+}
+
+.features-grid-layout {
+  width: 100%;
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+
+  gap: 16px;
+}
+
+/* =========================================================
+   FEATURE CARDS
+========================================================= */
+
+.feature-item-box-link {
+  position: relative;
+
+  display: block;
+
+  overflow: hidden;
+
+  background:
+    linear-gradient(
+      145deg,
+      var(--white-06) 0%,
+      var(--white-03) 100%
+    );
+
+  border: 1px solid var(--white-10);
+
+  border-radius: var(--radius-md);
+
+  box-shadow: var(--shadow-sm);
+
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+
+  transition:
+    border-color var(--transition-base),
+    background var(--transition-base),
+    transform var(--transition-base),
+    box-shadow var(--transition-base);
+}
+
+.feature-item-box-link:hover {
+  border-color: var(--primary-30);
+
+  background:
+    linear-gradient(
+      145deg,
+      var(--primary-08) 0%,
+      var(--white-03) 100%
+    );
+
+  box-shadow: var(--shadow-md);
+
+  transform: translateY(-3px);
+}
+
+.feature-item-box {
+  min-height: 92px;
+
+  padding: 20px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 15px;
+
+  position: relative;
+}
+
+.feature-icon {
+  flex-shrink: 0;
+
+  color: var(--color-primary);
+}
+
+.feature-text-block {
+  display: flex;
+  flex-direction: column;
+
+  gap: 4px;
+
+  min-width: 0;
+
+  padding-right: 15px;
+}
+
+.feature-main-title {
+  color: var(--white-100);
+
+  font-family: var(--font-body);
+
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  line-height: 1.3;
+
+  letter-spacing: 0.03em;
+}
+
+.feature-sub-desc {
+  color: var(--white-50);
+
+  font-family: var(--font-body);
+
+  font-size: var(--font-size-xs);
+  line-height: 1.4;
+}
+
+.feature-arrow-indicator {
+  margin-left: auto;
+
+  flex-shrink: 0;
+
+  color: var(--white-30);
+
+  font-size: 1.25rem;
+  font-weight: 300;
+  line-height: 1;
+
+  transition:
+    color var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.feature-item-box-link:hover .feature-arrow-indicator {
+  color: var(--color-primary);
+
+  transform: translateX(3px);
+}
+
+/* =========================================================
+   HERO GLOW
+========================================================= */
+
+.hero-section::before {
+  content: "";
+
+  position: absolute;
+
+  width: 500px;
+  height: 500px;
+
+  left: -180px;
+  bottom: 80px;
+
+  z-index: 2;
+
+  border-radius: 50%;
+
+  background:
+    radial-gradient(
+      circle,
+      var(--primary-10) 0%,
+      transparent 70%
+    );
+
+  pointer-events: none;
+}
+
+/* == RESPONSIVE ========= */
+
+@media (max-width: 1450px){
+  .badge-neon{
+    right: 0;
+  }
+}
+@media (max-width: 1200px) {
+  .hero-main-layout {
+    grid-template-columns: 1fr;
+
+    gap: 0;
+  }
+
+  .hero-visual-container {
+    display: none;
+  }
+
+  .features-grid-layout {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .hero-section {
+    padding-bottom: 240px;
+  }
+}
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 900px) {
+  .hero-section {
+    min-height: 760px;
+  }
+
+  .hero-title {
+    font-size: clamp(
+      2.5rem,
+      7vw,
+      3.8rem
+    );
+  }
+
+  .hero-description {
+    max-width: 620px;
+  }
+
+  .hero-actions-group {
+    gap: 12px;
+  }
+
+  .hero-trust-bullets-row {
+    gap: 16px;
+  }
+}
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 640px) {
+  .hero-section {
+    min-height: auto;
+
+    padding-top: 30px;
+    padding-bottom: 450px;
+  }
+
+  .hero-title {
+    margin-bottom: 18px;
+
+    font-size: clamp(
+      2.25rem,
+      11vw,
+      3.2rem
+    );
+
+    line-height: 1.08;
+  }
+
+  .hero-description {
+    margin-bottom: 28px;
+
+    font-size: 0.95rem;
+  }
+
+  .hero-actions-group {
+    flex-direction: column;
+    align-items: stretch;
+
+    gap: 10px;
+  }
+
+  .hero-btn-chat,
+  .hero-btn-explore {
+    width: 100%;
+  }
+
+  .hero-trust-bullets-row {
+    flex-direction: column;
+    align-items: flex-start;
+
+    gap: 10px;
+  }
+
+  .features-grid-layout {
+    grid-template-columns: 1fr;
+
+    gap: 10px;
+  }
+
+  .hero-features-bar {
+    padding-bottom: 0;
+  }
+
+  .feature-item-box {
+    min-height: 82px;
+    padding: 16px;
+  }
+
+  /* .hero-gradient-overlay {
+    background:
+      linear-gradient(
+        90deg,
+        var(--black-100) 0%,
+        var(--black-90) 55%,
+        var(--black-60) 100%
+      );
+  } */
+}
+
+/* =========================================================
+   SMALL MOBILE
+========================================================= */
+
+@media (max-width: 420px) {
+  .hero-section {
+    padding-bottom: 410px;
+  }
+
+  .hero-title {
+    font-size: 2.15rem;
+  }
+
+  .hero-description {
+    font-size: 0.9rem;
+  }
+
+  .feature-item-box {
+    padding: 14px;
+    gap: 12px;
+  }
+
+  .feature-main-title {
+    font-size: 0.78rem;
+  }
+
+  .feature-sub-desc {
+    font-size: 0.7rem;
+  }
+}
+
+/* =========================================================
+   REDUCED MOTION
+   Global reduced-motion rules already exist, but keeping
+   this hero animation safe here makes the component portable.
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .floating-badge {
+    animation: none;
+  }
+}
+
+
+/* =========================================================
+   HERO BACKDROP BACKGROUND CROSSFADE ENGINE
+========================================================= */
+
+.hero-background-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  object-position: 84% center; /* Locks focus point coordinates around model frame positioning [2] */
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 1.4s cubic-bezier(0.4, 0, 0.2, 1), visibility 1.4s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 1;
+}
+
+/* Brings active slide seamlessly into view */
+.hero-background-image.active {
+  opacity: 1;
+  visibility: visible;
+  z-index: 2;
+  transform: scale(1.02);
+  transition: opacity 1.4s cubic-bezier(0.4, 0, 0.2, 1), visibility 1.4s cubic-bezier(0.4, 0, 0.2, 1), transform 6s ease-out;
+}
+
+/* =========================================================
+   ACTIVE SLIDE TYPOGRAPHY ENTRANCE ANIMATIONS
+========================================================= */
+
+.animated-fade-in-up {
+  animation: slideFadeInUp 0.85s cubic-bezier(0.215, 0.610, 0.355, 1) both;
+}
+
+.animated-neon-scale {
+  animation: neonFadeScale 1.1s cubic-bezier(0.175, 0.885, 0.32, 1.275) both, floatingGently 6s ease-in-out infinite 1.1s;
+}
+
+@keyframes slideFadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes neonFadeScale {
+  0% {
+    opacity: 0;
+    transform: scale(0.9) translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* =========================================================
+   SLIDER DOT PAGINATION LAYOUT INDICATORS
+========================================================= */
+
+.slider-dots-container {
+  position: absolute;
+  bottom: 0; /* Positioned right above the bottom features bar [2] */
+  right: var(--container-padding);
+  z-index: 10;
+}
+
+.slider-dot-indicator {
+  width: 28px;
+  height: 3px;
+  background: var(--white-20);
+  border-radius: var(--radius-pill);
+  transition: background var(--transition-base), width var(--transition-base);
+}
+
+.slider-dot-indicator:hover {
+  background: var(--white-50);
+}
+
+.slider-dot-indicator.active {
+  width: 48px;
+  background: var(--color-primary); /* Uses your primary red design variable [4] */
+  box-shadow: var(--shadow-red);
+}
+
+/* =========================================================
+   MOBILE INTERACTION SCALING OVERRIDES [2]
+========================================================= */
+
+@media (max-width: 1200px) {
+  .slider-dots-container {
+    bottom: 240px; /* Pushes points safely above responsive grids [2] */
+    left: 50%;
+    transform: translateX(-50%);
+  }
+}
+
+@media (max-width: 640px) {
+  .slider-dots-container {
+    bottom: 0; /* Aligns comfortably for phone view ports [2] */
+    right: 5%;
+    left: auto;
+    transform: translateX(0);
+  }
+}
+@media (max-width: 767px){
+  .hero-background-image{
+    background-position: top center;
+    object-position: 73% center;
+    height: 520px;
+  }
+  .hero-gradient-overlay {
+    background: linear-gradient(
+        90deg,
+        var(--black-100) 0%,
+        var(--black-90) 0%,
+        var(--black-60) 37%
+      );
+}
+}
+

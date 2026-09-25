@@ -1,0 +1,331 @@
+/* =========================================================
+   LIVE MODELS CONTENT SECTION WRAPPER
+========================================================= */
+.live-models-section {
+    padding: 30px 0px;
+  background: var(--color-black);
+  overflow: hidden;
+}
+
+/* === MAIN SECTION TITLE HEADER STRUCTURE === */
+.live-models-header {
+  margin-bottom: 30px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding-bottom: 12px;
+}
+
+.models-title-wrapper {
+  position: relative;
+  flex: 1;
+}
+
+/* Red pulsing dot to the left of header string matching mockup */
+.live-indicator-dot-pulsing {
+  width: 11px;
+  height: 11px;
+  background-color: var(--color-primary);
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 12px;
+  box-shadow: 0 0 10px var(--color-primary);
+  animation: livePulse 1.8s infinite ease-in-out;
+}
+
+@keyframes livePulse {
+  0% { transform: scale(0.95); opacity: 1; }
+  50% { transform: scale(1.15); opacity: 0.7; }
+  100% { transform: scale(0.95); opacity: 1; }
+}
+
+.models-section-title {
+  font-family: var(--font-body);
+  font-size: 1.4rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--white-100);
+  text-transform: uppercase;
+  margin: 0;
+  white-space: nowrap;
+}
+
+.models-header-line {
+  height: 2px;
+  background: linear-gradient(90deg, var(--color-primary) 0%, transparent 100%);
+  flex: 1;
+  margin-left: 20px;
+  max-width: 350px;
+  opacity: 0.8;
+}
+
+.models-view-all {
+  color: #d90910;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 600;
+  gap: 6px;
+  transition: color var(--transition-fast), transform var(--transition-fast);
+  white-space: nowrap;
+}
+
+.models-view-all:hover {
+  color: var(--color-primary-light);
+  transform: translateX(2px);
+}
+
+.view-all-arrow-icon {
+  display: inline-block;
+  margin-top: 1px;
+}
+
+/* =========================================================
+   ADAPTIVE INTERFACE STRUCTURE (Grid Grid Viewport / Swipe Track Mobile)
+========================================================= */
+.live-models-grid-slider {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 16px;
+  width: 100%;
+}
+
+/* === CORE ITEM COMPONENT CARD SYSTEM === */
+.model-showcase-card {
+  position: relative;
+  aspect-ratio: 10 / 12;
+  border-radius: var(--radius-md) !important;
+  border: 1px solid rgba(255, 255, 255, 0.06) !important;
+  background: var(--gradient-card) !important;
+  box-shadow: var(--shadow-sm) !important;
+  transform: translateY(0);
+  transition: border-color var(--transition-base), transform var(--transition-base), box-shadow var(--transition-base) !important;
+}
+
+.model-showcase-card:hover {
+  border-color: rgba(255, 27, 34, 0.4) !important;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.7), 0 0 15px rgba(255, 27, 34, 0.06) !important;
+  transform: translateY(-4px) !important;
+}
+
+.model-image-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.model-profile-graphic {
+  transition: transform var(--transition-slow);
+}
+
+.model-showcase-card:hover .model-profile-graphic {
+  transform: scale(1.04);
+}
+
+.model-vignette-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0,0,0,0.3) 0%, transparent 35%, rgba(0, 0, 0, 0.5) 75%, rgba(0, 0, 0, 0.95) 100%);
+  z-index: 1;
+}
+
+/* === TOP FLOATING CHIPS LAYER OVERLAYS === */
+.model-badges-upper {
+  top: 0;
+  left: 0;
+  padding: 12px;
+  z-index: 2;
+  box-sizing: border-box;
+}
+
+.live-pill-badge-red {
+  background: #ff1b22;
+  color: var(--color-white);
+  font-family: var(--font-body);
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 4px;
+  letter-spacing: 0.05em;
+  box-shadow: 0 2px 8px rgba(255, 27, 34, 0.4);
+}
+
+.live-viewers-badge {
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  color: var(--white-90);
+  font-family: var(--font-body);
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+
+.viewer-eye-icon {
+  color: var(--color-primary);
+  margin-top: -1px;
+}
+
+/* === BOTTOM DESCRIPTION TYPOGRAPHY SETTINGS === */
+.model-card-details {
+  bottom: 0;
+  left: 0;
+  padding: 16px;
+  z-index: 2;
+  box-sizing: border-box;
+}
+
+.model-profile-name {
+  font-family: var(--font-body);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--white-100);
+  line-height: 1.2;
+  margin-bottom: 4px;
+}
+
+.model-attributes-row {
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.2;
+}
+
+.attr-tag {
+  color: var(--white-50);
+}
+
+/* Red bullet spacer cleanly segmenting model attribute data fields */
+.attr-separator-dot {
+  color: var(--color-primary);
+  margin-inline: 6px;
+  font-weight: 700;
+}
+
+.attr-action-link {
+  color: var(--white-80);
+  font-weight: 500;
+}
+
+/* === GLOBAL DESKTOP CONTROLS TOGGLE HIDING === */
+.models-mobile-navigation-arrows {
+  display: none !important;
+  margin-top: 20px;
+  gap: 14px;
+  width: 100%;
+  justify-content: end;
+}
+
+/* =========================================================
+   RESPONSIVE MEDIA QUERIES BREAKPOINTS
+========================================================= */
+@media (max-width: 1200px) {
+  .live-models-grid-slider {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+  }
+}
+
+/* Converts static columns track into horizontal slider loop below 900px wide viewports */
+@media (max-width: 900px) {
+  .live-models-container-override {
+    width: 100% !important;
+    padding-left: var(--container-padding);
+    padding-right: 0 !important;
+    box-sizing: border-box;
+  }
+
+  .live-models-header {
+    padding-right: var(--container-padding);
+    margin-bottom: 22px;
+  }
+
+  .models-header-line {
+    max-width: 160px;
+  }
+
+  .live-models-grid-slider {
+    display: flex !important;
+    flex-direction: row;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    gap: 14px;
+    width: 100%;
+    padding-right: var(--container-padding);
+    box-sizing: border-box;
+  }
+
+  .live-models-grid-slider::-webkit-scrollbar {
+    display: none;
+  }
+
+  .live-models-grid-slider {
+    scrollbar-width: none;
+  }
+
+  .model-showcase-card {
+    flex: 0 0 190px;
+    scroll-snap-align: start;
+    aspect-ratio: 10 / 14;
+  }
+
+  /* Displays interactive carousel button toggles below the view row tracks */
+  .models-mobile-navigation-arrows {
+    display: flex !important;
+    padding-right: var(--container-padding);
+    box-sizing: border-box;
+  }
+
+  .models-arrow-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--white-05);
+    border: 1px solid var(--white-12);
+    color: var(--white-80);
+    cursor: pointer;
+    box-shadow: var(--shadow-sm);
+    transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
+  }
+
+  .models-arrow-btn:hover {
+    background: var(--primary-10);
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+  }
+}
+
+@media (max-width: 640px) {
+  .models-header-line {
+    display: none;
+  }
+  
+  .model-showcase-card {
+    flex: 0 0 160px;
+  }
+  
+  .model-card-details {
+    padding: 12px;
+  }
+}
+
+@media (max-width: 767px) {
+  .model-showcase-card {
+    flex: 0 0 220px;
+  }
+  .live-models-header{
+    flex-direction: column;
+    align-items: start;
+    gap: 15px;
+    margin-bottom: 10px;
+  }
+  .live-models-section{
+    padding-top: 10px;
+  }
+  .model-attributes-row{
+    flex-direction: column;
+            align-items: flex-start;
+  }
+  .attr-separator-dot{
+    display: none;
+  }
+}

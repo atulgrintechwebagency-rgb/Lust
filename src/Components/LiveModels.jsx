@@ -1,69 +1,25 @@
-import React, { useRef } from "react";
+import { useRef } from "react";
 import { Link } from "react-router-dom";
 import { ChevronLeft, ChevronRight, Eye } from "lucide-react";
+import { useIsAuthenticated } from "../utils/auth";
+import useStripchatModels, {
+  isStripchatModelLive,
+} from "../hooks/useStripchatModels";
+import StripchatApiSkeleton from "./StripchatApiSkeleton";
 import "./LiveModels.css";
 
 function LiveModels() {
   const sliderRef = useRef(null);
-
-  // Exact data parsing extracted from your client mockup image reference
-  const modelsData = [
-    {
-      id: 1,
-      name: "Angelica",
-      tagline: "Big Tits",
-      action: "Chat Now",
-      viewers: "1.2K",
-      image: "/Images/Chloe.webp"
-    },
-    {
-      id: 2,
-      name: "Kira",
-      tagline: "Brunette",
-      action: "Private Chat",
-      viewers: "842",
-      image: "/Images/Luna.webp"
-    },
-    {
-      id: 3,
-      name: "Lexi",
-      tagline: "Petite",
-      action: "Tip Me",
-      viewers: "693",
-      image: "/Images/aria.webp"
-    },
-    {
-      id: 4,
-      name: "Valentina",
-      tagline: "Latina",
-      action: "Exclusive",
-      viewers: "521",
-      image: "/Images/Luna.webp"
-    },
-    {
-      id: 5,
-      name: "Harper",
-      tagline: "Blonde",
-      action: "Chat Now",
-      viewers: "404",
-      image: "/Images/Mia.webp"
-    },
-    {
-      id: 6,
-      name: "Sienna",
-      tagline: "Tattooed",
-      action: "Private Show",
-      viewers: "318",
-      image: "/Images/aria.webp"
-    }
-  ];
+  const authenticated = useIsAuthenticated();
+  const { models, loading, error, retry } = useStripchatModels();
+  const liveModels = models.filter(isStripchatModelLive);
 
   // Logic managing swift, smooth carousel scroll actions
   const scrollSlider = (direction) => {
     if (sliderRef.current) {
-      const step = 174; // Standard visual breakpoint mapping step increment sizes
+      const scrollAmount = sliderRef.current.clientWidth * 0.8;
       sliderRef.current.scrollBy({
-        left: direction === "left" ? -step * 2 : step * 2,
+        left: direction === "left" ? -scrollAmount : scrollAmount,
         behavior: "smooth"
       });
     }
@@ -91,19 +47,35 @@ function LiveModels() {
 
         {/* RESPONSIVE TRACK CONTAINER SYSTEM */}
         <div className="live-models-grid-slider" ref={sliderRef}>
-          {modelsData.map((model) => (
-              <Link 
-                key={model.id} 
-                to={`/live-chat/${model.id}`} 
+          {loading ? (
+            <StripchatApiSkeleton variant="carousel" count={6} />
+          ) : error ? (
+            <div className="live-models-api-message" role="alert">
+              <span>{error}</span>
+              <button type="button" onClick={retry}>Try again</button>
+            </div>
+          ) : liveModels.length === 0 ? (
+            <p className="live-models-api-message" role="status">No live models are available right now.</p>
+          ) : liveModels.map((model) => (
+              <Link
+                key={model.id}
+                to={authenticated ? `/live-chat/${model.id}` : "/login"}
                 className="model-showcase-card card overflow-hidden"
               >
               {/* Profile Background Image Graphic Content Layer */}
               <div className="model-image-container h-full w-full">
                 <img 
-                  src={model.image} 
-                  alt={model.name} 
-                  className="image-cover model-profile-graphic" 
+                  src={model.image}
+                  alt={authenticated ? model.name : "Blurred live model preview"} 
+                  className={`image-cover model-profile-graphic ${
+                    authenticated ? "" : "guest-blurred-image"
+                  }`} 
                 />
+                {!authenticated && (
+                  <div className="guest-image-overlay">
+                    <span>Sign in to view</span>
+                  </div>
+                )}
                 <div className="model-vignette-overlay"></div>
               </div>
 
@@ -120,7 +92,7 @@ function LiveModels() {
               <div className="model-card-details absolute w-full">
                 <h3 className="model-profile-name">{model.name}</h3>
                 <div className="model-attributes-row flex items-center">
-                  <span className="attr-tag">{model.tagline}</span>
+                  <span className="attr-tag">{model.type}</span>
                   <span className="attr-separator-dot">•</span>
                   <span className="attr-action-link">{model.action}</span>
                 </div>

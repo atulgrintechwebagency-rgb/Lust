@@ -9,6 +9,42 @@
   color: var(--white-100);
   overflow: hidden;
 }
+
+.model-details-message {
+  margin-top: 32px;
+  padding: 32px;
+  border: 1px solid var(--white-10);
+  border-radius: var(--radius-xl);
+  background: var(--black-30);
+}
+
+.model-details-message p {
+  color: var(--white-70);
+}
+
+.model-details-languages {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 18px;
+  color: var(--white-70);
+}
+
+.model-details-languages svg,
+.stat-value svg {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.model-details-languages svg {
+  color: var(--primary-60);
+}
+
+.model-profile-layout .status-badge--offline .status-dot {
+  background: var(--white-50);
+  box-shadow: none;
+  animation: none;
+}
 .model-page-wrapper .companions-grid-slider-track{
     grid-template-columns: repeat(4, minmax(0, 1fr));
 }

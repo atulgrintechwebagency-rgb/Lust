@@ -1294,3 +1294,114 @@
   }
 
 }
+
+.header-profile-link,
+.header-logout-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--white-12);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--white-100);
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    border-color var(--transition-base),
+    color var(--transition-base),
+    background var(--transition-base);
+}
+
+.header-profile-link span {
+  max-width: 130px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.header-profile-link:hover,
+.header-logout-button:hover {
+  border-color: var(--primary-60);
+  color: var(--white-100);
+  background: var(--primary-10);
+}
+
+.mobile-profile-button,
+.mobile-logout-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  width: 100%;
+  min-height: 50px;
+  padding: 0 16px;
+  border: 1px solid var(--white-12);
+  border-radius: var(--radius-sm);
+  background: var(--white-05);
+  color: var(--white-100);
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.mobile-profile-button span {
+  max-width: 240px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mobile-profile-button:hover,
+.mobile-logout-button:hover {
+  border-color: var(--primary-60);
+  color: var(--white-100);
+  background: var(--primary-10);
+}
+
+.header-auth-notice {
+  position: fixed;
+  z-index: 2000;
+  top: 88px;
+  right: 24px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: max-content;
+  max-width: min(420px, calc(100vw - 32px));
+  padding: 13px 16px;
+  border: 1px solid rgba(111, 224, 151, 0.36);
+  border-radius: var(--radius-sm);
+  background: rgba(14, 25, 18, 0.97);
+  color: var(--white-100);
+  font-size: 0.9rem;
+  line-height: 1.4;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.32);
+}
+
+.header-auth-notice svg {
+  flex: 0 0 auto;
+  color: #73e39a;
+}
+
+@media (max-width: 900px) {
+  .header-auth-notice {
+    top: 82px;
+    right: 16px;
+  }
+}
+
+@media (max-width: 520px) {
+  .header-auth-notice {
+    top: 76px;
+    right: 12px;
+    max-width: calc(100vw - 24px);
+  }
+}

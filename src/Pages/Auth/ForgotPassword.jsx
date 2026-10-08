@@ -13,18 +13,58 @@ import AuthLayout from "./AuthLayout";
 export default function ForgotPassword() {
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
-    if (!email.trim()) {
+    setError("");
+
+    const normalizedEmail = email.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
+      setError("Enter a valid email address.");
       return;
     }
 
-    // Connect your forgot-password API here.
-    // The API should send the password reset email.
+    setLoading(true);
 
-    setSubmitted(true);
+    try {
+      const apiBaseUrl = import.meta.env.VITE_LARAVEL_API_URL?.replace(/\/+$/, "");
+
+      if (!apiBaseUrl) {
+        throw new Error("Password reset is not available right now. Please try again later.");
+      }
+
+      const response = await fetch(`${apiBaseUrl}/auth/forgot/password`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({ email: normalizedEmail }),
+      });
+      const data = (await response.json().catch(() => null)) || {};
+
+      if (!response.ok || !data.success) {
+        const validationError = Object.values(data.errors || {})
+          .flat()
+          .find(Boolean);
+
+        throw new Error(
+          validationError ||
+            data.message ||
+            `Unable to send the reset link (HTTP ${response.status}). Please try again.`
+        );
+      }
+
+      setEmail(normalizedEmail);
+      setSubmitted(true);
+    } catch (requestError) {
+      setError(requestError.message || "Unable to send the reset link. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -66,13 +106,24 @@ export default function ForgotPassword() {
                 type="email"
                 value={email}
                 onChange={(event) =>
-                  setEmail(event.target.value)
+                  {
+                    setEmail(event.target.value);
+                    setError("");
+                  }
                 }
                 placeholder="you@example.com"
                 autoComplete="email"
                 required
+                aria-invalid={Boolean(error)}
+                aria-describedby={error ? "forgot-email-error" : undefined}
               />
             </div>
+
+            {error && (
+              <p className="auth-form-error" id="forgot-email-error" role="alert">
+                {error}
+              </p>
+            )}
 
             <small className="auth-field-help">
               We'll send password reset instructions to this
@@ -84,10 +135,11 @@ export default function ForgotPassword() {
           <button
             type="submit"
             className="btn btn-primary btn-lg btn-full auth-submit"
+            disabled={loading}
           >
-            Send Reset Link
+            {loading ? "Sending..." : "Send Reset Link"}
 
-            <ArrowRight size={18} />
+            {!loading && <ArrowRight size={18} />}
           </button>
 
           {/* ====  BACK TO LOGIN ==== */}

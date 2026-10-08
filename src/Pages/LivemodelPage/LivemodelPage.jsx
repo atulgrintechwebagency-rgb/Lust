@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import React, { useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
   ArrowRight,
   ChevronRight,
@@ -9,182 +9,25 @@ import {
   ShieldCheck,
   Eye,
   Video,
-  Wifi,
   X,
 } from 'lucide-react';
 
+import { useIsAuthenticated } from '../../utils/auth';
+import useStripchatModels, {
+  isStripchatModelLive,
+} from '../../hooks/useStripchatModels';
+import StripchatApiSkeleton from '../../Components/StripchatApiSkeleton';
+import ModelPagination, {
+  MODEL_PAGE_SIZE,
+} from '../../Components/ModelPagination';
 import './LivemodelPage.css';
-
-
-/* == LIVE MODELS DATA ============= */
-
-const liveModels = [
-  {
-    id: 1,
-    name: 'Angelica',
-    type: 'Big Tits',
-    action: 'Chat Now',
-    category: 'Blonde',
-    image: '/Images/gallery1.webp',
-    viewers: '1.2K',
-    description:
-      'Sweet, confident and ready to make your live chat feel personal.',
-    tags: ['Blonde', 'Playful', 'Flirty'],
-    featured: true,
-  },
-
-  {
-    id: 2,
-    name: 'Kira',
-    type: 'Brunette',
-    action: 'Private Chat',
-    category: 'Brunette',
-    image: '/Images/gallery2.webp',
-    viewers: '842',
-    description:
-      'A mysterious brunette with a playful side and plenty to say.',
-    tags: ['Brunette', 'Private', 'Mysterious'],
-  },
-
-  {
-    id: 3,
-    name: 'Lexi',
-    type: 'Petite',
-    action: 'Tip Me',
-    category: 'Petite',
-    image: '/Images/gallery3.webp',
-    viewers: '693',
-    description:
-      'Petite, playful and always ready to keep the conversation going.',
-    tags: ['Petite', 'Sweet', 'Playful'],
-  },
-
-  {
-    id: 4,
-    name: 'Valentina',
-    type: 'Latina',
-    action: 'Exclusive',
-    category: 'Latina',
-    image: '/Images/gallery4.webp',
-    viewers: '521',
-    description:
-      'Confident energy, warm conversation and an unforgettable presence.',
-    tags: ['Latina', 'Confident', 'Passionate'],
-  },
-
-  {
-    id: 5,
-    name: 'Harper',
-    type: 'Blonde',
-    action: 'Chat Now',
-    category: 'Blonde',
-    image: '/Images/gallery5.webp',
-    viewers: '404',
-    description:
-      'A fun-loving blonde who knows how to make every chat interesting.',
-    tags: ['Blonde', 'Friendly', 'Playful'],
-  },
-
-  {
-    id: 6,
-    name: 'Sienna',
-    type: 'Tattooed',
-    action: 'Private Show',
-    category: 'Tattooed',
-    image: '/Images/gallery6.webp',
-    viewers: '318',
-    description:
-      'Bold personality, unique style and a private experience made for you.',
-    tags: ['Tattooed', 'Bold', 'Creative'],
-  },
-
-  {
-    id: 7,
-    name: 'Camila',
-    type: 'Brunette',
-    action: 'Chat Now',
-    category: 'Brunette',
-    image: '/Images/gallery7.webp',
-    viewers: '287',
-    description:
-      'Warm, charming and ready for a one-on-one conversation.',
-    tags: ['Brunette', 'Romantic', 'Caring'],
-  },
-
-  {
-    id: 8,
-    name: 'Bella',
-    type: 'Petite',
-    action: 'Private Chat',
-    category: 'Petite',
-    image: '/Images/gallery8.webp',
-    viewers: '245',
-    description:
-      'Cute, confident and always ready to create a fun connection.',
-    tags: ['Petite', 'Cute', 'Flirty'],
-  },
-
-  {
-    id: 9,
-    name: 'Sofia',
-    type: 'Latina',
-    action: 'Exclusive',
-    category: 'Latina',
-    image: '/Images/gallery9.webp',
-    viewers: '201',
-    description:
-      'Passionate personality with a naturally captivating presence.',
-    tags: ['Latina', 'Passionate', 'Confident'],
-  },
-
-  {
-    id: 10,
-    name: 'Riley',
-    type: 'Tattooed',
-    action: 'Chat Now',
-    category: 'Tattooed',
-    image: '/Images/Gallery10.webp',
-    viewers: '186',
-    description:
-      'Creative, confident and never short on conversation.',
-    tags: ['Tattooed', 'Creative', 'Bold'],
-  },
-
-  {
-    id: 11,
-    name: 'Emily',
-    type: 'Blonde',
-    action: 'Private Chat',
-    category: 'Blonde',
-    image: '/Images/Gallery11.webp',
-    viewers: '165',
-    description:
-      'A playful personality with a soft and welcoming energy.',
-    tags: ['Blonde', 'Sweet', 'Friendly'],
-  },
-
-  {
-    id: 12,
-    name: 'Nina',
-    type: 'Brunette',
-    action: 'Chat Now',
-    category: 'Brunette',
-    image: '/Images/Gallery12.webp',
-    viewers: '143',
-    description:
-      'Confident, mysterious and ready for your next live conversation.',
-    tags: ['Brunette', 'Mysterious', 'Flirty'],
-  },
-];
-
 
 const categories = [
   'All',
-  'Blonde',
-  'Brunette',
-  'Latina',
-  'Petite',
-  'Tattooed',
+  'Female',
+  'Male',
+  'Couple',
+  'Other',
 ];
 
 
@@ -193,6 +36,7 @@ const categories = [
 function LiveModelCard({ model }) {
 
   const [liked, setLiked] = useState(false);
+  const authenticated = useIsAuthenticated();
   
 
   const handleLike = (event) => {
@@ -204,55 +48,40 @@ function LiveModelCard({ model }) {
 
   return (
     <Link
-      to={`/live-chat/${liveModels.id}`}
+      to={authenticated ? `/live-chat/${model.id}` : '/login'}
       className="live-model-card card"
-      aria-label={`Start live chat with ${model.name}`}
+      aria-label={
+        authenticated
+          ? `View ${model.name}'s profile`
+          : `Sign in to view ${model.name}`
+      }
     >
-
       <div className="live-model-image">
-
         <img
           src={model.image}
-          alt={`${model.name} live model`}
-          className="image-cover"
+          alt={authenticated ? `${model.name} live model` : 'Blurred live model preview'}
+          className={`image-cover ${authenticated ? '' : 'guest-blurred-image'}`}
         />
-
+        {!authenticated && (
+          <div className="guest-image-overlay">
+            <span>Sign in to view</span>
+          </div>
+        )}
         <div className="live-model-image-overlay" />
 
-
-        {/* LIVE BADGE */}
-
         <div className="live-model-status">
-
           <span className="live-status-dot" />
-
-          <span>
-            LIVE
-          </span>
-
+          <span>LIVE</span>
         </div>
-
-
-        {/* VIEWERS */}
 
         <div className="live-model-viewers">
-
           <Eye size={12} />
-
-          <span>
-            {model.viewers}
-          </span>
-
+          <span>{model.viewers}</span>
         </div>
-
-
-        {/* LIKE */}
 
         <button
           type="button"
-          className={`live-model-favorite icon-btn ${
-            liked ? 'liked' : ''
-          }`}
+          className={`live-model-favorite icon-btn ${liked ? 'liked' : ''}`}
           onClick={handleLike}
           aria-label={
             liked
@@ -261,73 +90,34 @@ function LiveModelCard({ model }) {
           }
           aria-pressed={liked}
         >
-
           <Heart
             size={17}
             strokeWidth={liked ? 2.4 : 1.8}
             fill={liked ? 'currentColor' : 'none'}
           />
-
         </button>
 
-
-        {/* CARD CONTENT */}
-
         <div className="live-model-card-content">
-
           <div className="live-model-card-heading">
-
             <div>
-
-              <h3 className="live-model-name font-heading">
-                {model.name}
-              </h3>
-
+              <h3 className="live-model-name font-heading">{model.name}</h3>
               <p className="live-model-type">
-
                 {model.type}
-
-                <span className="live-model-dot-separator">
-                  •
-                </span>
-
-                <span className="live-action-text">
-                  {model.action}
-                </span>
-
+                <span className="live-model-dot-separator">•</span>
+                <span className="live-action-text">View Profile</span>
               </p>
-
             </div>
-
-
-            <ChevronRight
-              className="live-model-arrow"
-              size={22}
-              strokeWidth={1.6}
-            />
-
+            <ChevronRight className="live-model-arrow" size={22} strokeWidth={1.6} />
           </div>
-
-
           <div className="live-model-tags">
-
             {model.tags.map((tag) => (
-
-              <span
-                key={tag}
-                className="badge badge-dark live-model-tag"
-              >
+              <span key={tag} className="badge badge-dark live-model-tag">
                 {tag}
               </span>
-
             ))}
-
           </div>
-
         </div>
-
       </div>
-
     </Link>
   );
 }
@@ -336,10 +126,11 @@ function LiveModelCard({ model }) {
 /* ====== LIVE MODELS PAGE ===== */
 
 function LivemodelPage() {
-
+  const authenticated = useIsAuthenticated();
+  const { models, loading, error, retry } = useStripchatModels();
   const [activeCategory, setActiveCategory] = useState('All');
-
   const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
 
 
   /* =======   FILTER MODELS ===== */
@@ -348,7 +139,10 @@ function LivemodelPage() {
 
     const search = searchTerm.trim().toLowerCase();
 
-    return liveModels.filter((model) => {
+    return models.filter((model) => {
+      if (!isStripchatModelLive(model)) {
+        return false;
+      }
 
       const matchesCategory =
         activeCategory === 'All' ||
@@ -365,13 +159,18 @@ function LivemodelPage() {
       return matchesCategory && matchesSearch;
     });
 
-  }, [activeCategory, searchTerm]);
+  }, [activeCategory, models, searchTerm]);
+  const paginatedModels = useMemo(() => {
+    const startIndex = (currentPage - 1) * MODEL_PAGE_SIZE;
+    return filteredModels.slice(startIndex, startIndex + MODEL_PAGE_SIZE);
+  }, [currentPage, filteredModels]);
 
 
   /* ====  CLEAR SEARCH ======== */
 
   const clearSearch = () => {
     setSearchTerm('');
+    setCurrentPage(1);
   };
 
 
@@ -445,9 +244,10 @@ function LivemodelPage() {
               <input
                 type="search"
                 value={searchTerm}
-                onChange={(event) =>
-                  setSearchTerm(event.target.value)
-                }
+                onChange={(event) => {
+                  setSearchTerm(event.target.value);
+                  setCurrentPage(1);
+                }}
                 placeholder="Search live models..."
                 aria-label="Search live models"
               />
@@ -493,9 +293,10 @@ function LivemodelPage() {
                       ? 'active'
                       : ''
                   }`}
-                  onClick={() =>
-                    setActiveCategory(category)
-                  }
+                  onClick={() => {
+                    setActiveCategory(category);
+                    setCurrentPage(1);
+                  }}
                 >
                   {category}
                 </button>
@@ -509,11 +310,21 @@ function LivemodelPage() {
 
           {/* =======   MODEL GRID ===== */}
 
-          {filteredModels.length > 0 ? (
+          {loading ? (
+            <StripchatApiSkeleton variant="grid" count={8} />
+          ) : error ? (
+            <div className="live-models-empty card" role="alert">
+              <h3 className="font-heading">Live models could not be loaded</h3>
+              <p>{error}</p>
+              <button type="button" className="btn btn-outline" onClick={retry}>
+                Try again
+              </button>
+            </div>
+          ) : filteredModels.length > 0 ? (
 
             <div className="live-models-grid">
 
-              {filteredModels.map((model) => (
+              {paginatedModels.map((model) => (
 
                 <LiveModelCard
                   key={model.id}
@@ -523,36 +334,33 @@ function LivemodelPage() {
               ))}
 
             </div>
-
           ) : (
-
             /* ======  EMPTY STATE ====== */
-
             <div className="live-models-empty card">
-
               <Search size={30} />
-
-              <h3 className="font-heading">
-                No live models found
-              </h3>
-
-              <p>
-                Try another name or select a different category.
-              </p>
-
+              <h3 className="font-heading">No live models found</h3>
+              <p>Try another name or select a different category.</p>
               <button
                 type="button"
                 className="btn btn-outline"
                 onClick={() => {
                   setSearchTerm('');
                   setActiveCategory('All');
+                  setCurrentPage(1);
                 }}
               >
                 View All Models
               </button>
-
             </div>
+          )}
 
+          {!loading && !error && filteredModels.length > 0 && (
+            <ModelPagination
+              currentPage={currentPage}
+              pageSize={MODEL_PAGE_SIZE}
+              totalItems={filteredModels.length}
+              onPageChange={setCurrentPage}
+            />
           )}
 
         </div>
@@ -578,7 +386,16 @@ function LivemodelPage() {
             <div className="live-featured-image">
 
               <img
-                src="/Images/liveModel.webp" alt="Angelica live model" className="image-cover"/>
+                src="/Images/liveModel.webp"
+                alt={authenticated ? "Angelica live model" : "Blurred featured live model preview"}
+                className={`image-cover ${authenticated ? '' : 'guest-blurred-image'}`}
+              />
+
+              {!authenticated && (
+                <Link to="/login" className="guest-image-overlay guest-image-overlay-link">
+                  <span>Sign in to view live models</span>
+                </Link>
+              )}
 
               <div className="live-featured-image-overlay" />
 

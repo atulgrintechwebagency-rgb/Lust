@@ -366,6 +366,32 @@ p {
   overflow: hidden;
 }
 
+.guest-blurred-image {
+  filter: blur(9px);
+  transform: scale(1.08);
+}
+
+.guest-image-overlay {
+  position: absolute;
+  z-index: 4;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.24);
+  color: var(--white-100);
+  font-size: 0.86rem;
+  font-weight: 700;
+  text-align: center;
+  pointer-events: none;
+}
+
+.guest-image-overlay-link {
+  pointer-events: auto;
+  cursor: pointer;
+}
+
 
 /* =========================================================
    CONTAINER

@@ -5,14 +5,114 @@ import {
   Menu,
   X,
   ArrowUpRight,
+  UserRound,
+  LogOut,
+  CheckCircle2,
 } from "lucide-react";
 
 import "./Header.css";
+
+const getStoredAuthUser = () => {
+  const token =
+    localStorage.getItem("auth_token") ||
+    sessionStorage.getItem("auth_token");
+  const storedUser =
+    localStorage.getItem("auth_user") ||
+    sessionStorage.getItem("auth_user");
+
+  if (!token || !storedUser) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(storedUser);
+  } catch {
+    return null;
+  }
+};
 
 function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [authUser, setAuthUser] = useState(getStoredAuthUser);
+  const [authNotice, setAuthNotice] = useState("");
+
+  useEffect(() => {
+    const syncAuthUser = (event) => {
+      setAuthUser(getStoredAuthUser());
+
+      if (event.detail?.message) {
+        setAuthNotice(event.detail.message);
+      }
+    };
+
+    window.addEventListener("auth-change", syncAuthUser);
+    window.addEventListener("storage", syncAuthUser);
+
+    return () => {
+      window.removeEventListener("auth-change", syncAuthUser);
+      window.removeEventListener("storage", syncAuthUser);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!authNotice) {
+      return undefined;
+    }
+
+    const timeoutId = window.setTimeout(() => setAuthNotice(""), 4000);
+    return () => window.clearTimeout(timeoutId);
+  }, [authNotice]);
+
+  const handleLogout = async () => {
+    const token =
+      localStorage.getItem("auth_token") ||
+      sessionStorage.getItem("auth_token");
+
+    localStorage.removeItem("auth_token");
+    localStorage.removeItem("auth_user");
+    sessionStorage.removeItem("auth_token");
+    sessionStorage.removeItem("auth_user");
+    setAuthUser(null);
+    closeMobileMenu();
+    window.dispatchEvent(
+      new CustomEvent("auth-change", {
+        detail: { message: "Logged out successfully." },
+      })
+    );
+
+    const apiBaseUrl = import.meta.env.VITE_LARAVEL_API_URL?.replace(/\/+$/, "");
+
+    if (!token || !apiBaseUrl) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`${apiBaseUrl}/auth/logout`, {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const data = (await response.json().catch(() => null)) || {};
+
+      if (!response.ok || !data.success) {
+        console.error(data.message || `Logout request failed (HTTP ${response.status}).`);
+      }
+    } catch (error) {
+      console.error("Logout request failed:", error);
+    }
+  };
+
+  const profileLabel =
+    authUser?.name ||
+    [authUser?.first_name, authUser?.last_name].filter(Boolean).join(" ") ||
+    authUser?.firstName ||
+    authUser?.username ||
+    authUser?.email ||
+    "My profile";
 
   /* ===== SCROLL STATE ===== */
 
@@ -179,24 +279,34 @@ function Header() {
               />
             </button>
 
-            <Link
-              to="/login"
-              className="header-signin"
-            >
-              Sign In
-            </Link>
+            {authUser ? (
+              <>
+                <Link to="/my-account" className="header-profile-link">
+                  <UserRound size={17} />
+                  <span>{profileLabel}</span>
+                </Link>
 
-            <Link
-              to="/register"
-              className="header-join-button"
-            >
-              <span>Join Now</span>
+                <button
+                  type="button"
+                  className="header-logout-button"
+                  onClick={handleLogout}
+                >
+                  <LogOut size={17} />
+                  <span>Logout</span>
+                </button>
+              </>
+            ) : (
+              <>
+                <Link to="/login" className="header-signin">
+                  Sign In
+                </Link>
 
-              <ArrowUpRight
-                size={16}
-                strokeWidth={2}
-              />
-            </Link>
+                <Link to="/register" className="header-join-button">
+                  <span>Join Now</span>
+                  <ArrowUpRight size={16} strokeWidth={2} />
+                </Link>
+              </>
+            )}
           </div>
 
           {/* =================================================
@@ -230,6 +340,13 @@ function Header() {
           </button>
         </div>
       </header>
+
+      {authNotice && (
+        <div className="header-auth-notice" role="status" aria-live="polite">
+          <CheckCircle2 size={19} aria-hidden="true" />
+          <span>{authNotice}</span>
+        </div>
+      )}
 
       {/* =====================================================
           MOBILE NAVIGATION
@@ -320,26 +437,46 @@ function Header() {
               <span>Search</span>
             </button>
 
-            <Link
-              to="/login"
-              className="mobile-signin-button"
-              onClick={closeMobileMenu}
-            >
-              Sign In
-            </Link>
+            {authUser ? (
+              <>
+                <Link
+                  to="/my-account"
+                  className="mobile-profile-button"
+                  onClick={closeMobileMenu}
+                >
+                  <UserRound size={18} />
+                  <span>{profileLabel}</span>
+                </Link>
 
-            <Link
-              to="/signup"
-              className="mobile-join-button"
-              onClick={closeMobileMenu}
-            >
-              <span>Join Now</span>
+                <button
+                  type="button"
+                  className="mobile-logout-button"
+                  onClick={handleLogout}
+                >
+                  <LogOut size={18} />
+                  <span>Logout</span>
+                </button>
+              </>
+            ) : (
+              <>
+                <Link
+                  to="/login"
+                  className="mobile-signin-button"
+                  onClick={closeMobileMenu}
+                >
+                  Sign In
+                </Link>
 
-              <ArrowUpRight
-                size={17}
-                strokeWidth={2}
-              />
-            </Link>
+                <Link
+                  to="/register"
+                  className="mobile-join-button"
+                  onClick={closeMobileMenu}
+                >
+                  <span>Join Now</span>
+                  <ArrowUpRight size={17} strokeWidth={2} />
+                </Link>
+              </>
+            )}
           </div>
 
           {/* =================================================

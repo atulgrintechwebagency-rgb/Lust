@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 import {
   ArrowLeft,
   ArrowRight,
   Check,
+  CheckCircle2,
   ChevronDown,
   Eye,
   EyeOff,
@@ -17,8 +18,6 @@ import AuthLayout from "./AuthLayout";
 import "./Auth.css";
 
 export default function Register() {
-  const navigate = useNavigate();
-
   const [currentStep, setCurrentStep] = useState(1);
 
   const [showPassword, setShowPassword] = useState(false);
@@ -26,6 +25,10 @@ export default function Register() {
 
   const [adult, setAdult] = useState(false);
   const [terms, setTerms] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState({});
+  const [successMessage, setSuccessMessage] = useState("");
 
   const [preferences, setPreferences] = useState({
     explore: [],
@@ -34,7 +37,7 @@ export default function Register() {
   });
 
   const [formData, setFormData] = useState({
-    firstName: "",
+    name: "",
     username: "",
     email: "",
     password: "",
@@ -85,6 +88,17 @@ export default function Register() {
       ...previous,
       [name]: value,
     }));
+
+    setFieldErrors((previous) => {
+      const nextErrors = { ...previous, [name]: "" };
+
+      if (name === "password" || name === "confirmPassword") {
+        nextErrors.confirmPassword = "";
+      }
+
+      return nextErrors;
+    });
+    setError("");
   };
 
   const togglePreference = (type, value) => {
@@ -107,29 +121,47 @@ export default function Register() {
   };
 
   const validateStepOne = () => {
-    if (
-      !formData.firstName.trim() ||
-      !formData.username.trim() ||
-      !formData.email.trim() ||
-      !formData.password ||
-      !formData.confirmPassword
-    ) {
-      return false;
+    const nextErrors = {};
+
+    if (!formData.name.trim()) {
+      nextErrors.name = "Enter your full name.";
     }
 
-    if (formData.password !== formData.confirmPassword) {
-      return false;
+    if (!formData.username.trim()) {
+      nextErrors.username = "Choose a username.";
     }
 
-    if (!adult || !terms) {
-      return false;
+    if (!formData.email.trim()) {
+      nextErrors.email = "Enter your email address.";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) {
+      nextErrors.email = "Enter a valid email address.";
     }
 
-    return true;
+    if (formData.password.length < 8) {
+      nextErrors.password = "Password must be at least 8 characters.";
+    }
+
+    if (!formData.confirmPassword) {
+      nextErrors.confirmPassword = "Confirm your password.";
+    } else if (formData.password !== formData.confirmPassword) {
+      nextErrors.confirmPassword = "Passwords do not match.";
+    }
+
+    if (!adult) {
+      nextErrors.adult = "You must confirm that you are 18 or older.";
+    }
+
+    if (!terms) {
+      nextErrors.terms = "You must accept the terms to continue.";
+    }
+
+    setFieldErrors(nextErrors);
+    return Object.keys(nextErrors).length === 0;
   };
 
   const handleNext = () => {
     if (currentStep === 1) {
+      setError("");
       if (!validateStepOne()) {
         return;
       }
@@ -149,36 +181,90 @@ export default function Register() {
     }
   };
 
+  const registerAccount = async () => {
+    if (loading) {
+      return;
+    }
+
+    setError("");
+    setLoading(true);
+
+    try {
+      const apiBaseUrl = import.meta.env.VITE_LARAVEL_API_URL?.replace(/\/+$/, "");
+
+      if (!apiBaseUrl) {
+        throw new Error("Registration service is not configured. Please try again later.");
+      }
+
+      const response = await fetch(`${apiBaseUrl}/auth/register`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          name: formData.name.trim(),
+          username: formData.username.trim().replace(/^@+/, ""),
+          email: formData.email.trim(),
+          password: formData.password,
+          password_confirmation: formData.confirmPassword,
+          is_18_or_older: adult ? 1 : 0,
+          terms_accepted: terms ? 1 : 0,
+          device_name: "web-app",
+        }),
+      });
+
+      const data = (await response.json().catch(() => null)) || {};
+
+      if (!response.ok || !data.success) {
+        const apiFieldNames = {
+          password_confirmation: "confirmPassword",
+          is_18_or_older: "adult",
+          terms_accepted: "terms",
+        };
+        const nextFieldErrors = Object.fromEntries(
+          Object.entries(data.errors || {}).map(([field, messages]) => [
+            apiFieldNames[field] || field,
+            Array.isArray(messages) ? messages[0] : messages,
+          ])
+        );
+        const firstValidationError = Object.values(nextFieldErrors).find(Boolean);
+
+        if (firstValidationError) {
+          setFieldErrors(nextFieldErrors);
+          setCurrentStep(1);
+          setError("");
+          return;
+        }
+
+        throw new Error(
+          data.message ||
+            `Unable to register (HTTP ${response.status}). Please try again.`
+        );
+      }
+
+      setSuccessMessage(
+        data.message || "Registration successful. Please verify your email."
+      );
+    } catch (requestError) {
+      setError(requestError.message || "Unable to register. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSubmit = (event) => {
     event.preventDefault();
 
-    /*
-     * Connect your registration API here.
-     *
-     * formData:
-     * - firstName
-     * - username
-     * - email
-     * - password
-     * - confirmPassword
-     *
-     * preferences:
-     * - explore
-     * - connection
-     * - language
-     */
+    if (currentStep !== 3) {
+      return;
+    }
 
-    navigate("/");
+    registerAccount();
   };
 
   const handleSkip = () => {
-    /*
-     * Registration can continue without saving preferences.
-     *
-     * Connect your registration API here if required.
-     */
-
-    navigate("/");
+    registerAccount();
   };
 
   return (
@@ -198,6 +284,23 @@ export default function Register() {
         className="auth-form auth-register-form"
         onSubmit={handleSubmit}
       >
+        {successMessage ? (
+          <div className="auth-success" role="status">
+            <div className="auth-success-icon">
+              <CheckCircle2 size={28} />
+            </div>
+            <h2>Check your email</h2>
+            <p>{successMessage}</p>
+            <Link
+              to="/login"
+              className="btn btn-primary btn-lg btn-full auth-submit"
+            >
+              Go to sign in
+              <ArrowRight size={18} />
+            </Link>
+          </div>
+        ) : (
+          <>
         {/* ==================================================
             STEP INDICATOR
         =================================================== */}
@@ -245,6 +348,12 @@ export default function Register() {
           })}
         </div>
 
+        {error && (
+          <p className="auth-error" role="alert">
+            {error}
+          </p>
+        )}
+
         {/* ==================================================
             STEP 1 — ACCOUNT
         =================================================== */}
@@ -265,13 +374,13 @@ export default function Register() {
 
             {/* NAME ROW */}
             <div className="auth-form-grid">
-              {/* FIRST NAME */}
+              {/* FULL NAME */}
               <div className="form-group">
                 <label
-                  htmlFor="firstName"
+                  htmlFor="name"
                   className="form-label"
                 >
-                  First Name
+                  Full Name
                 </label>
 
                 <div className="auth-input">
@@ -281,16 +390,23 @@ export default function Register() {
                   />
 
                   <input
-                    id="firstName"
-                    name="firstName"
+                    id="name"
+                    name="name"
                     type="text"
-                    value={formData.firstName}
+                    value={formData.name}
                     onChange={handleInputChange}
                     placeholder="Your name"
-                    autoComplete="given-name"
+                    autoComplete="name"
                     required
+                    aria-invalid={Boolean(fieldErrors.name)}
+                    aria-describedby={fieldErrors.name ? "name-error" : undefined}
                   />
                 </div>
+                {fieldErrors.name && (
+                  <p className="auth-form-error" id="name-error">
+                    {fieldErrors.name}
+                  </p>
+                )}
               </div>
 
               {/* USERNAME */}
@@ -317,8 +433,15 @@ export default function Register() {
                     placeholder="@username"
                     autoComplete="username"
                     required
+                    aria-invalid={Boolean(fieldErrors.username)}
+                    aria-describedby={fieldErrors.username ? "username-error" : undefined}
                   />
                 </div>
+                {fieldErrors.username && (
+                  <p className="auth-form-error" id="username-error">
+                    {fieldErrors.username}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -346,8 +469,15 @@ export default function Register() {
                   placeholder="you@example.com"
                   autoComplete="email"
                   required
+                  aria-invalid={Boolean(fieldErrors.email)}
+                  aria-describedby={fieldErrors.email ? "register-email-error" : undefined}
                 />
               </div>
+              {fieldErrors.email && (
+                <p className="auth-form-error" id="register-email-error">
+                  {fieldErrors.email}
+                </p>
+              )}
             </div>
 
             {/* PASSWORD ROW */}
@@ -381,6 +511,8 @@ export default function Register() {
                     autoComplete="new-password"
                     minLength={8}
                     required
+                    aria-invalid={Boolean(fieldErrors.password)}
+                    aria-describedby={fieldErrors.password ? "register-password-error" : undefined}
                   />
 
                   <button
@@ -404,6 +536,11 @@ export default function Register() {
                     )}
                   </button>
                 </div>
+                {fieldErrors.password && (
+                  <p className="auth-form-error" id="register-password-error">
+                    {fieldErrors.password}
+                  </p>
+                )}
               </div>
 
               {/* CONFIRM PASSWORD */}
@@ -435,6 +572,8 @@ export default function Register() {
                     autoComplete="new-password"
                     minLength={8}
                     required
+                    aria-invalid={Boolean(fieldErrors.confirmPassword)}
+                    aria-describedby={fieldErrors.confirmPassword ? "confirm-password-error" : undefined}
                   />
 
                   <button
@@ -458,18 +597,15 @@ export default function Register() {
                     )}
                   </button>
                 </div>
+                {fieldErrors.confirmPassword && (
+                  <p className="auth-form-error" id="confirm-password-error">
+                    {fieldErrors.confirmPassword}
+                  </p>
+                )}
               </div>
             </div>
 
             {/* PASSWORD ERROR */}
-            {formData.confirmPassword &&
-              formData.password !==
-                formData.confirmPassword && (
-                <p className="auth-form-error">
-                  Passwords do not match.
-                </p>
-              )}
-
             {/* ADULT CHECKBOX */}
             <label
               className={`auth-consent ${
@@ -481,9 +617,12 @@ export default function Register() {
                 id="adultCheck"
                 type="checkbox"
                 checked={adult}
-                onChange={(event) =>
-                  setAdult(event.target.checked)
-                }
+                onChange={(event) => {
+                  setAdult(event.target.checked);
+                  setFieldErrors((previous) => ({ ...previous, adult: "" }));
+                }}
+                aria-invalid={Boolean(fieldErrors.adult)}
+                aria-describedby={fieldErrors.adult ? "adult-error" : undefined}
               />
 
               <span className="auth-check-box">
@@ -501,6 +640,11 @@ export default function Register() {
                 </small>
               </span>
             </label>
+            {fieldErrors.adult && (
+              <p className="auth-form-error" id="adult-error">
+                {fieldErrors.adult}
+              </p>
+            )}
 
             {/* TERMS CHECKBOX */}
             <label
@@ -513,9 +657,12 @@ export default function Register() {
                 id="termsCheck"
                 type="checkbox"
                 checked={terms}
-                onChange={(event) =>
-                  setTerms(event.target.checked)
-                }
+                onChange={(event) => {
+                  setTerms(event.target.checked);
+                  setFieldErrors((previous) => ({ ...previous, terms: "" }));
+                }}
+                aria-invalid={Boolean(fieldErrors.terms)}
+                aria-describedby={fieldErrors.terms ? "terms-error" : undefined}
               />
 
               <span className="auth-check-box">
@@ -536,21 +683,15 @@ export default function Register() {
                 </span>
               </span>
             </label>
+            {fieldErrors.terms && (
+              <p className="auth-form-error" id="terms-error">
+                {fieldErrors.terms}
+              </p>
+            )}
 
             {/* NEXT */}
             <button
               type="button"
-              disabled={
-                !adult ||
-                !terms ||
-                !formData.firstName.trim() ||
-                !formData.username.trim() ||
-                !formData.email.trim() ||
-                !formData.password ||
-                !formData.confirmPassword ||
-                formData.password !==
-                  formData.confirmPassword
-              }
               className="btn btn-primary btn-lg btn-full auth-submit"
               onClick={handleNext}
             >
@@ -794,10 +935,11 @@ export default function Register() {
             <button
               type="submit"
               className="btn btn-primary btn-lg btn-full auth-submit"
+              disabled={loading}
             >
-              Save Preferences
+              {loading ? "Creating Account..." : "Create Account"}
 
-              <ArrowRight size={18} />
+              {!loading && <ArrowRight size={18} />}
             </button>
 
             {/* SKIP */}
@@ -805,8 +947,9 @@ export default function Register() {
               type="button"
               className="auth-skip-button"
               onClick={handleSkip}
+              disabled={loading}
             >
-              Skip for now
+              {loading ? "Creating Account..." : "Skip preferences"}
             </button>
 
             {/* BACK */}
@@ -820,6 +963,9 @@ export default function Register() {
               Back
             </button>
           </div>
+        )}
+
+          </>
         )}
 
         {/* ==================================================

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 import {
   ArrowRight,
@@ -14,16 +14,98 @@ import AuthLayout from "./AuthLayout";
 
 export default function Login() {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  /* === UI STATE ==== */
 
   const [showPassword, setShowPassword] = useState(false);
   const [remember, setRemember] = useState(false);
 
-  const handleSubmit = (event) => {
+  /* === LOGIN FORM STATE ====== */
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  /* === API STATE ==== */
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  /* === LOGIN SUBMIT ===== */
+
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
-    // Connect your authentication API here.
+    setError("");
+    setLoading(true);
 
-    navigate("/");
+    try {
+      const apiBaseUrl = import.meta.env.VITE_LARAVEL_API_URL?.replace(/\/+$/, "");
+
+      if (!apiBaseUrl) {
+        throw new Error("Login service is not configured. Please contact support.");
+      }
+
+      const response = await fetch(
+        `${apiBaseUrl}/auth/login`,
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+
+          body: JSON.stringify({
+            email: email.trim(),
+            password: password,
+          }),
+        }
+      );
+
+        const data = (await response.json().catch(() => null)) || {};
+
+      /* ===  CHECK API RESPONSE ====== */
+
+      if (!response.ok || !data.success) {
+        throw new Error(
+            data.message ||
+              (!response.ok
+                ? `Unable to login (HTTP ${response.status}). Please try again.`
+                : "Unable to login. Please try again.")
+        );
+      }
+
+      /* ==== GET USER + TOKEN ====== */
+
+      const user = data.data.user;
+      const token = data.data.token;
+
+      /* ===  SAVE AUTHENTICATION ======= */
+
+      const storage = remember
+        ? localStorage
+        : sessionStorage;
+
+      storage.setItem("auth_token", token);
+      storage.setItem("auth_user", JSON.stringify(user));
+      window.dispatchEvent(
+        new CustomEvent("auth-change", {
+          detail: { message: "Login successful." },
+        })
+      );
+
+      /* ==  LOGIN SUCCESS ====== */
+
+      navigate(location.state?.from || "/", { replace: true });
+    } catch (error) {
+      setError(
+        error.message ||
+          "Something went wrong. Please try again."
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -44,9 +126,8 @@ export default function Login() {
         className="auth-form"
         onSubmit={handleSubmit}
       >
-        {/* ==================================================
-            EMAIL
-        =================================================== */}
+        {/* ==  EMAIL ====== */}
+
         <div className="form-group">
           <label
             htmlFor="email"
@@ -66,14 +147,17 @@ export default function Login() {
               type="email"
               placeholder="you@example.com"
               autoComplete="email"
+              value={email}
+              onChange={(event) =>
+                setEmail(event.target.value)
+              }
               required
             />
           </div>
         </div>
 
-        {/* ==================================================
-            PASSWORD
-        =================================================== */}
+        {/* =====   PASSWORD ======= */}
+
         <div className="form-group">
           <div className="auth-label-row">
             <label
@@ -106,6 +190,10 @@ export default function Login() {
               }
               placeholder="Enter your password"
               autoComplete="current-password"
+              value={password}
+              onChange={(event) =>
+                setPassword(event.target.value)
+              }
               required
             />
 
@@ -132,9 +220,8 @@ export default function Login() {
           </div>
         </div>
 
-        {/* ==================================================
-            REMEMBER ME
-        =================================================== */}
+        {/* ===  REMEMBER ME ==== */}
+
         <label
           htmlFor="rememberMe"
           className={`auth-check ${
@@ -159,32 +246,31 @@ export default function Login() {
           </span>
         </label>
 
-        {/* ==================================================
-            SUBMIT
-        =================================================== */}
+        {/* =====  API ERROR ======== */}
+
+        {error && (
+          <p
+            className="auth-error"
+            role="alert"
+          >
+            {error}
+          </p>
+        )}
+
+        {/* ======  SUBMIT === */}
+
         <button
           type="submit"
           className="btn btn-primary btn-lg btn-full auth-submit"
+          disabled={loading}
         >
-          Sign In
+          {loading ? "Signing In..." : "Sign In"}
 
-          <ArrowRight size={18} />
+          {!loading && <ArrowRight size={18} />}
         </button>
 
-        {/* ==================================================
-            DIVIDER
-        =================================================== */}
-        {/*
-        <div className="auth-divider">
-          <span />
-          <small>or continue with</small>
-          <span />
-        </div>
-        */}
+        {/* === REGISTER ===== */}
 
-        {/* ==================================================
-            REGISTER
-        =================================================== */}
         <p className="auth-switch">
           Don't have an account?{" "}
 

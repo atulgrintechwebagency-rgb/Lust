@@ -1,129 +1,33 @@
 import { useMemo, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   Search,
   Heart,
   ArrowRight,
-  SlidersHorizontal,
   Sparkles,
 } from "lucide-react";
+import { useIsAuthenticated } from "../../utils/auth";
+import useStripchatModels from "../../hooks/useStripchatModels";
+import StripchatApiSkeleton from "../../Components/StripchatApiSkeleton";
+import ModelPagination, {
+  MODEL_PAGE_SIZE,
+} from "../../Components/ModelPagination";
 import "./CompanionsPage.css";
 
-const companions = [
-  {
-    id: 1,
-    name: "Sophie",
-    type: "The Sweetheart",
-    image: "/Images/gallery1.webp",
-    status: "Online",
-    tags: ["Romantic", "Sweet", "Caring"],
-  },
-  {
-    id: 2,
-    name: "Mia",
-    type: "The Tease",
-    image: "/Images/gallery2.webp",
-    status: "Online",
-    tags: ["Playful", "Flirty", "Fun"],
-  },
-  {
-    id: 3,
-    name: "Luna",
-    type: "The Adventurer",
-    image: "/Images/gallery3.webp",
-    status: "Online",
-    tags: ["Adventurous", "Bold", "Curious"],
-  },
-  {
-    id: 4,
-    name: "Aria",
-    type: "The Dreamer",
-    image: "/Images/Aria.webp",
-    status: "Online",
-    tags: ["Dreamy", "Romantic", "Creative"],
-  },
-  {
-    id: 5,
-    name: "Nina",
-    type: "The Wild One",
-    image: "/Images/gallery5.webp",
-    status: "Online",
-    tags: ["Confident", "Wild", "Playful"],
-  },
-  {
-    id: 6,
-    name: "Chloe",
-    type: "The Girl Next Door",
-    image: "/Images/gallery6.webp",
-    status: "Online",
-    tags: ["Friendly", "Sweet", "Casual"],
-  },
-  {
-    id: 7,
-    name: "Angelica",
-    type: "The Romantic",
-    image: "/Images/gallery7.webp",
-    status: "Online",
-    tags: ["Romantic", "Passionate", "Caring"],
-  },
-  {
-    id: 8,
-    name: "Kira",
-    type: "The Brunette",
-    image: "/Images/gallery8.webp",
-    status: "Online",
-    tags: ["Confident", "Mysterious", "Flirty"],
-  },
-  {
-    id: 9,
-    name: "Lexi",
-    type: "The Petite",
-    image: "/Images/gallery9.webp",
-    status: "Online",
-    tags: ["Playful", "Sweet", "Fun"],
-  },
-  {
-    id: 10,
-    name: "Valentina",
-    type: "The Latina",
-    image: "/Images/Gallery10.webp",
-    status: "Online",
-    tags: ["Passionate", "Romantic", "Confident"],
-  },
-  {
-    id: 11,
-    name: "Harper",
-    type: "The Blonde",
-    image: "/Images/Gallery11.webp",
-    status: "Online",
-    tags: ["Sweet", "Friendly", "Playful"],
-  },
-  {
-    id: 12,
-    name: "Sienna",
-    type: "The Tattooed One",
-    image: "/Images/Gallery12.webp",
-    status: "Online",
-    tags: ["Bold", "Creative", "Confident"],
-  },
-];
-
-const categories = [
-  "All",
-  "Romantic",
-  "Playful",
-  "Adventurous",
-  "Sweet",
-  "Confident",
-  "Flirty",
-];
+const categories = ["All", "Female", "Male", "Couple", "Other"];
 
 export default function CompanionsPage() {
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
+  const [currentPage, setCurrentPage] = useState(1);
   const [favorites, setFavorites] = useState([]);
+  const authenticated = useIsAuthenticated();
+  const { models, loading, error, retry } = useStripchatModels();
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const filteredCompanions = useMemo(() => {
-    return companions.filter((companion) => {
+    return models.filter((companion) => {
       const searchValue = search.toLowerCase().trim();
 
       const matchesSearch =
@@ -136,13 +40,31 @@ export default function CompanionsPage() {
 
       const matchesCategory =
         activeCategory === "All" ||
-        companion.tags.includes(activeCategory);
+        companion.category === activeCategory;
 
       return matchesSearch && matchesCategory;
     });
-  }, [search, activeCategory]);
+  }, [search, activeCategory, models]);
+  const paginatedCompanions = useMemo(() => {
+    const startIndex = (currentPage - 1) * MODEL_PAGE_SIZE;
+    return filteredCompanions.slice(
+      startIndex,
+      startIndex + MODEL_PAGE_SIZE
+    );
+  }, [currentPage, filteredCompanions]);
 
-  const toggleFavorite = (id) => {
+  const toggleFavorite = (id, event) => {
+    if (!authenticated) {
+      event.preventDefault();
+      window.dispatchEvent(
+        new CustomEvent("auth-change", {
+          detail: { message: "Sign in to save favorites." },
+        })
+      );
+      navigate("/login", { state: { from: location } });
+      return;
+    }
+
     setFavorites((current) =>
       current.includes(id)
         ? current.filter((item) => item !== id)
@@ -168,13 +90,13 @@ export default function CompanionsPage() {
           </span>
 
           <h1 className="ai-companions-hero-title">
-            Meet Your
-            <span> AI Companion.</span>
+            Discover
+            <span> Live Models.</span>
           </h1>
 
           <p className="ai-companions-hero-description">
-            Discover AI companions created to match your personality,
-            interests, and the kind of connection you're looking for.
+            Browse live Stripchat models, explore their profiles, and find
+            someone you would like to connect with.
           </p>
 
           <div className="ai-companions-hero-actions">
@@ -193,17 +115,17 @@ export default function CompanionsPage() {
 
             <span>
               <Sparkles size={15} />
-              Personalized personalities
+              Live model profiles
             </span>
 
             <span>
               <Sparkles size={15} />
-              Available anytime
+              Search and browse
             </span>
 
             <span>
               <Sparkles size={15} />
-              Private & secure
+              Direct model links
             </span>
 
           </div>
@@ -232,9 +154,7 @@ export default function CompanionsPage() {
                 Discover Your Match
               </span> */}
 
-              <h2 className="section-title">
-                AI Companions
-              </h2>
+              <h2 className="section-title">Live Models</h2>
             </div>
 
           </div>
@@ -251,10 +171,11 @@ export default function CompanionsPage() {
               <input
                 type="search"
                 value={search}
-                onChange={(event) =>
-                  setSearch(event.target.value)
-                }
-                placeholder="Search companions..."
+                onChange={(event) => {
+                  setSearch(event.target.value);
+                  setCurrentPage(1);
+                }}
+                placeholder="Search live models..."
                 aria-label="Search companions"
               />
 
@@ -265,7 +186,7 @@ export default function CompanionsPage() {
               </strong>
 
               <span>
-                Companions
+                Models
               </span>
             </div>
 
@@ -295,9 +216,10 @@ export default function CompanionsPage() {
                     ? "ai-category active"
                     : "ai-category"
                 }
-                onClick={() =>
-                  setActiveCategory(category)
-                }
+                onClick={() => {
+                  setActiveCategory(category);
+                  setCurrentPage(1);
+                }}
               >
                 {category}
               </button>
@@ -309,11 +231,21 @@ export default function CompanionsPage() {
 
           {/* GRID */}
 
-          {filteredCompanions.length > 0 ? (
+          {loading ? (
+            <StripchatApiSkeleton variant="grid" count={8} />
+          ) : error ? (
+            <div className="ai-companions-empty" role="alert">
+              <h3>Models could not be loaded</h3>
+              <p>{error}</p>
+              <button type="button" className="btn btn-outline" onClick={retry}>
+                Try again
+              </button>
+            </div>
+          ) : filteredCompanions.length > 0 ? (
 
             <div className="ai-companions-grid">
 
-              {filteredCompanions.map((companion) => {
+              {paginatedCompanions.map((companion) => {
 
                 const isFavorite =
                   favorites.includes(companion.id);
@@ -325,25 +257,35 @@ export default function CompanionsPage() {
                     key={companion.id}
                   >
 
-                    <a
-                      href={`/companions/${companion.name.toLowerCase()}`}
-                      className="ai-companion-image-link"
+                    <Link
+                      to={authenticated ? `/companions/${companion.id}` : "/login"}
+                      className={`ai-companion-image-link ${
+                        authenticated ? "" : "guest-locked-card"
+                      }`}
                     >
 
                       <img
                         src={companion.image}
-                        alt={`${companion.name} - ${companion.type}`}
-                        className="ai-companion-image"
+                        alt={authenticated ? `${companion.name} - ${companion.type}` : "Blurred companion preview"}
+                        className={`ai-companion-image ${
+                          authenticated ? "" : "guest-blurred-image"
+                        }`}
                       />
+
+                      {!authenticated && (
+                        <div className="guest-image-overlay">
+                          <span>Sign in to view</span>
+                        </div>
+                      )}
 
                       <div className="ai-companion-image-overlay" />
 
                       <span className="ai-companion-online">
                         <span />
-                        {companion.status}
+                        {companion.status === "public" ? "Live" : companion.status || "Online"}
                       </span>
 
-                    </a>
+                    </Link>
 
 
                     <button
@@ -353,13 +295,15 @@ export default function CompanionsPage() {
                           ? "ai-companion-favorite active"
                           : "ai-companion-favorite"
                       }
-                      onClick={() =>
-                        toggleFavorite(companion.id)
+                      onClick={(event) =>
+                        toggleFavorite(companion.id, event)
                       }
                       aria-label={
-                        isFavorite
-                          ? `Remove ${companion.name} from favorites`
-                          : `Add ${companion.name} to favorites`
+                        !authenticated
+                          ? `Sign in to add ${companion.name} to favorites`
+                          : isFavorite
+                            ? `Remove ${companion.name} from favorites`
+                            : `Add ${companion.name} to favorites`
                       }
                     >
 
@@ -419,34 +363,32 @@ export default function CompanionsPage() {
               })}
 
             </div>
-
           ) : (
-
             <div className="ai-companions-empty">
-
               <Search size={28} />
-
-              <h3>
-                No companions found
-              </h3>
-
-              <p>
-                Try another name, personality, or category.
-              </p>
-
+              <h3>No companions found</h3>
+              <p>Try another name, personality, or category.</p>
               <button
                 type="button"
                 className="btn btn-outline"
                 onClick={() => {
                   setSearch("");
                   setActiveCategory("All");
+                  setCurrentPage(1);
                 }}
               >
                 Clear Filters
               </button>
-
             </div>
+          )}
 
+          {!loading && !error && filteredCompanions.length > 0 && (
+            <ModelPagination
+              currentPage={currentPage}
+              pageSize={MODEL_PAGE_SIZE}
+              totalItems={filteredCompanions.length}
+              onPageChange={setCurrentPage}
+            />
           )}
 
         </div>

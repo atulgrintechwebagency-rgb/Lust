@@ -81,16 +81,46 @@
    ADAPTIVE INTERFACE STRUCTURE (Grid Grid Viewport / Swipe Track Mobile)
 ========================================================= */
 .live-models-grid-slider {
-  display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
+  display: flex;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
   gap: 16px;
   width: 100%;
+  padding: 2px 2px 8px;
+  scrollbar-width: none;
+}
+
+.live-models-grid-slider::-webkit-scrollbar {
+  display: none;
+}
+
+.live-models-api-message {
+  flex: 0 0 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--white-80);
+}
+
+.live-models-api-message button {
+  color: var(--white-100);
+  background: transparent;
+  border: 1px solid var(--white-12);
+  border-radius: var(--radius-sm);
+  padding: 6px 10px;
+  cursor: pointer;
 }
 
 /* === CORE ITEM COMPONENT CARD SYSTEM === */
 .model-showcase-card {
   position: relative;
+  flex: 0 0 calc((100% - 80px) / 6);
+  min-width: 0;
   aspect-ratio: 10 / 12;
+  scroll-snap-align: start;
   border-radius: var(--radius-md) !important;
   border: 1px solid rgba(255, 255, 255, 0.06) !important;
   background: var(--gradient-card) !important;
@@ -206,11 +236,29 @@
 
 /* === GLOBAL DESKTOP CONTROLS TOGGLE HIDING === */
 .models-mobile-navigation-arrows {
-  display: none !important;
+  display: flex;
   margin-top: 20px;
   gap: 14px;
   width: 100%;
   justify-content: end;
+}
+
+.models-arrow-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--white-05);
+  border: 1px solid var(--white-12);
+  color: var(--white-80);
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
+}
+
+.models-arrow-btn:hover {
+  background: var(--primary-10);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
 }
 
 /* =========================================================
@@ -218,12 +266,11 @@
 ========================================================= */
 @media (max-width: 1200px) {
   .live-models-grid-slider {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 14px;
   }
 }
 
-/* Converts static columns track into horizontal slider loop below 900px wide viewports */
+/* Adjust carousel spacing and card sizing on smaller screens */
 @media (max-width: 900px) {
   .live-models-container-override {
     width: 100% !important;
@@ -242,35 +289,16 @@
   }
 
   .live-models-grid-slider {
-    display: flex !important;
-    flex-direction: row;
-    overflow-x: auto;
-    overflow-y: hidden;
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
     gap: 14px;
-    width: 100%;
     padding-right: var(--container-padding);
-    box-sizing: border-box;
-  }
-
-  .live-models-grid-slider::-webkit-scrollbar {
-    display: none;
-  }
-
-  .live-models-grid-slider {
-    scrollbar-width: none;
   }
 
   .model-showcase-card {
-    flex: 0 0 190px;
-    scroll-snap-align: start;
+    flex-basis: 220px;
     aspect-ratio: 10 / 14;
   }
 
-  /* Displays interactive carousel button toggles below the view row tracks */
   .models-mobile-navigation-arrows {
-    display: flex !important;
     padding-right: var(--container-padding);
     box-sizing: border-box;
   }
@@ -300,7 +328,7 @@
   }
   
   .model-showcase-card {
-    flex: 0 0 160px;
+    flex-basis: 190px;
   }
   
   .model-card-details {
@@ -310,7 +338,7 @@
 
 @media (max-width: 767px) {
   .model-showcase-card {
-    flex: 0 0 220px;
+    flex-basis: 222px;
   }
   .live-models-header{
     flex-direction: column;

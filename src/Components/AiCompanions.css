@@ -63,16 +63,50 @@
    ADAPTIVE TRACK LAYOUT (Grid on Desktop / Slider on Mobile)
 ========================================================= */
 .companions-grid-slider-track {
-  display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
+  display: flex;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
   gap: 16px;
   width: 100%;
+  padding: 2px 2px 8px;
+  scrollbar-width: none;
+}
+
+.companions-grid-slider-track::-webkit-scrollbar {
+  display: none;
+}
+
+.companions-grid-slider-track::-webkit-scrollbar {
+  display: none;
+}
+
+.companions-api-message {
+  flex: 0 0 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--white-80);
+}
+
+.companions-api-message button {
+  color: var(--white-100);
+  background: transparent;
+  border: 1px solid var(--white-12);
+  border-radius: var(--radius-sm);
+  padding: 6px 10px;
+  cursor: pointer;
 }
 
 /* === CARD COMPONENT STRUCTURAL FRAME === */
 .companion-card {
   position: relative;
+  flex: 0 0 calc((100% - 80px) / 6);
+  min-width: 0;
   aspect-ratio: 10 / 12; /* Locks uniform pixel layout parameters */
+  scroll-snap-align: start;
   border-radius: var(--radius-md) !important;
   border: 1px solid rgba(255, 255, 255, 0.06) !important;
   background: var(--gradient-card) !important;
@@ -120,7 +154,7 @@
 
 .companion-name {
   font-family: var(--font-body);
-  font-size: 18px;
+  font-size: 15px;
   font-weight: 600;
   color: var(--white-100);
   line-height: 1.2;
@@ -129,7 +163,7 @@
 
 .companion-tagline {
   font-family: var(--font-body);
-  font-size: 15px;
+  font-size: 14px;
   color: var(--white-70);
   line-height: 1.2;
   margin: 0;
@@ -177,11 +211,29 @@
 
 /* === DESKTOP HIDDEN CONTROLS LAYER === */
 .slider-mobile-controls {
-  display: none !important;
+  display: flex;
   margin-top: 20px;
   gap: 14px;
   width: 100%;
   justify-content: flex-end;
+}
+
+.slider-control-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--white-05);
+  border: 1px solid var(--white-12);
+  color: var(--white-80);
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
+}
+
+.slider-control-btn:hover {
+  background: var(--primary-10);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
 }
 
 /* =========================================================
@@ -189,7 +241,6 @@
 ========================================================= */
 @media (max-width: 1200px) {
   .companions-grid-slider-track {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 14px;
   }
 }
@@ -214,35 +265,17 @@
 
   /* Slider row block structure conversion */
   .companions-grid-slider-track {
-    display: flex !important;
-    flex-direction: row;
-    overflow-x: auto;
-    overflow-y: hidden;
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
     gap: 14px;
-    width: 100%;
     padding-right: var(--container-padding);
-    box-sizing: border-box;
-  }
-
-  .companions-grid-slider-track::-webkit-scrollbar {
-    display: none; /* Hide default native track bars */
-  }
-
-  .companions-grid-slider-track {
-    scrollbar-width: none; /* Firefox */
   }
 
   .companion-card {
-    flex: 0 0 190px; /* Standardize display bounds across device tracks */
-    scroll-snap-align: start;
+    flex-basis: 220px;
     aspect-ratio: 10 / 14;
   }
 
   /* Displays interactive button controls under the slide layer on mobile screen viewports */
   .slider-mobile-controls {
-    display: flex !important;
     padding-right: var(--container-padding);
     box-sizing: border-box;
   }
@@ -272,7 +305,7 @@
   }
   
   .companion-card {
-    flex: 0 0 160px;
+    flex-basis: 190px;
   }
   
   .companion-card-details {
@@ -282,7 +315,7 @@
 
 @media (max-width: 767px) {
   .companion-card {
-    flex: 0 0 222px;
+    flex-basis: 222px;
   }
   .companions-section{
     padding: 30px 0px;

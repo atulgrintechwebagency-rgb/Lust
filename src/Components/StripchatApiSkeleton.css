@@ -1,0 +1,236 @@
+.stripchat-api-skeleton {
+  --skeleton-base: rgba(255, 255, 255, 0.07);
+  --skeleton-highlight: rgba(255, 255, 255, 0.14);
+  color: transparent;
+}
+
+.stripchat-skeleton {
+  display: block;
+  overflow: hidden;
+  border-radius: 8px;
+  background: linear-gradient(
+    100deg,
+    var(--skeleton-base) 25%,
+    var(--skeleton-highlight) 45%,
+    var(--skeleton-base) 65%
+  );
+  background-size: 220% 100%;
+  animation: stripchat-skeleton-shimmer 1.35s ease-in-out infinite;
+}
+
+@keyframes stripchat-skeleton-shimmer {
+  to {
+    background-position-x: -220%;
+  }
+}
+
+.stripchat-skeleton-carousel {
+  display: flex;
+  flex: 0 0 100%;
+  gap: 16px;
+  overflow: hidden;
+}
+
+.stripchat-skeleton-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 22px;
+}
+
+.stripchat-skeleton-card {
+  position: relative;
+  min-width: 0;
+  aspect-ratio: 10 / 12;
+  overflow: hidden;
+  border: 1px solid var(--white-10);
+  border-radius: var(--radius-md);
+  background: #0a0a0a;
+}
+
+.stripchat-skeleton-carousel .stripchat-skeleton-card {
+  flex: 0 0 calc((100% - 80px) / 6);
+}
+
+.stripchat-skeleton-card::before {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg, transparent 15%, rgba(255, 255, 255, 0.045) 50%, transparent 85%);
+  background-size: 220% 100%;
+  animation: stripchat-skeleton-shimmer 1.35s ease-in-out infinite;
+  content: "";
+}
+
+.stripchat-skeleton-card-badge {
+  position: absolute;
+  z-index: 1;
+  top: 12px;
+  left: 12px;
+  width: 44px;
+  height: 19px;
+}
+
+.stripchat-skeleton-card-copy {
+  position: absolute;
+  z-index: 1;
+  right: 15px;
+  bottom: 17px;
+  left: 15px;
+  display: grid;
+  gap: 9px;
+}
+
+.stripchat-skeleton-title {
+  width: 65%;
+  height: 17px;
+}
+
+.stripchat-skeleton-subtitle {
+  width: 45%;
+  height: 12px;
+}
+
+.stripchat-skeleton-profile {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: clamp(32px, 6vw, 80px);
+  align-items: center;
+  width: 100%;
+}
+
+.stripchat-skeleton-profile-image {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: var(--radius-xl);
+}
+
+.stripchat-skeleton-profile-info {
+  display: grid;
+  gap: 17px;
+}
+
+.stripchat-skeleton-eyebrow {
+  width: 34%;
+  height: 12px;
+}
+
+.stripchat-skeleton-heading {
+  width: 70%;
+  height: clamp(32px, 5vw, 58px);
+}
+
+.stripchat-skeleton-line {
+  width: 85%;
+  height: 15px;
+}
+
+.stripchat-skeleton-line-short {
+  width: 48%;
+}
+
+.stripchat-skeleton-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin: 8px 0;
+  padding: 20px 0;
+  border-top: 1px solid var(--white-10);
+  border-bottom: 1px solid var(--white-10);
+}
+
+.stripchat-skeleton-stat {
+  height: 48px;
+}
+
+.stripchat-skeleton-button {
+  width: 210px;
+  height: 48px;
+  margin-top: 8px;
+}
+
+.stripchat-skeleton-chat {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 390px;
+  gap: 24px;
+  width: 100%;
+}
+
+.stripchat-skeleton-chat-main {
+  display: grid;
+  align-content: start;
+  gap: 18px;
+}
+
+.stripchat-skeleton-video {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: var(--radius-xl);
+}
+
+.stripchat-skeleton-profile-bar {
+  width: 100%;
+  height: 170px;
+  border-radius: var(--radius-xl);
+}
+
+.stripchat-skeleton-chat-panel {
+  width: 100%;
+  min-height: min(82vh, 780px);
+  border-radius: var(--radius-xl);
+}
+
+@media (max-width: 1024px) {
+  .stripchat-skeleton-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .stripchat-skeleton-carousel .stripchat-skeleton-card {
+    flex-basis: calc((100% - 48px) / 4);
+  }
+
+  .stripchat-skeleton-chat {
+    grid-template-columns: minmax(0, 1fr) 330px;
+    gap: 18px;
+  }
+}
+
+@media (max-width: 768px) {
+  .stripchat-skeleton-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+  }
+
+  .stripchat-skeleton-carousel .stripchat-skeleton-card {
+    flex-basis: calc((100% - 32px) / 3);
+  }
+
+  .stripchat-skeleton-profile {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+
+  .stripchat-skeleton-profile-image {
+    max-height: 440px;
+    aspect-ratio: 4 / 3;
+  }
+
+  .stripchat-skeleton-chat {
+    grid-template-columns: 1fr;
+  }
+
+  .stripchat-skeleton-chat-panel {
+    min-height: 480px;
+  }
+}
+
+@media (max-width: 480px) {
+  .stripchat-skeleton-carousel .stripchat-skeleton-card {
+    flex-basis: calc((100% - 16px) / 2);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stripchat-skeleton,
+  .stripchat-skeleton-card::before {
+    animation-duration: 3s;
+  }
+}

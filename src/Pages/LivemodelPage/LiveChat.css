@@ -64,6 +64,29 @@
   padding-bottom: 80px;
 }
 
+.live-chat-state {
+  padding: 32px;
+  border: 1px solid var(--white-10);
+  border-radius: var(--radius-xl);
+  background: var(--black-30);
+}
+
+.live-chat-state p {
+  color: var(--white-70);
+}
+
+.live-video-error {
+  position: absolute;
+  inset: auto 16px 16px;
+  z-index: 2;
+  padding: 12px 15px;
+  border: 1px solid rgba(255, 27, 34, 0.45);
+  border-radius: var(--radius-md);
+  background: rgba(0, 0, 0, 0.82);
+  color: var(--white-100);
+  font-size: 14px;
+}
+
 .live-chat-layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 390px;
@@ -94,14 +117,6 @@
   height: 100%;
   object-fit: cover;
   background: #050505;
-}
-
-.live-video-player::-webkit-media-controls,
-.live-video-player::-webkit-media-controls-enclosure,
-.live-video-player::-webkit-media-controls-panel,
-.live-video-player::-webkit-media-controls-play-button,
-.live-video-player::-webkit-media-controls-start-playback-button {
-  display: none !important;
 }
 
 .live-video-gradient {
@@ -1198,6 +1213,11 @@
   color: var(--white-90);
   border-color: var(--primary-40);
   background: var(--primary-10);
+}
+
+.live-quick-messages button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 /* ==========  CHAT INPUT ======== */

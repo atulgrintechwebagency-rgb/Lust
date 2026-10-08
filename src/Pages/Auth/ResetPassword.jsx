@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 
 import {
   ArrowRight,
@@ -12,11 +12,9 @@ import {
 import AuthLayout from "./AuthLayout";
 
 export default function ResetPassword() {
-  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
   const token = searchParams.get("token");
-  const email = searchParams.get("email");
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] =
@@ -27,12 +25,19 @@ export default function ResetPassword() {
     useState("");
 
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
   const [success, setSuccess] = useState(false);
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
     setError("");
+
+    if (!token) {
+      setError("This password reset link is invalid or incomplete. Request a new one.");
+      return;
+    }
 
     if (password.length < 8) {
       setError(
@@ -48,18 +53,51 @@ export default function ResetPassword() {
       return;
     }
 
-    // Connect your reset-password API here.
-    //
-    // Example:
-    //
-    // await resetPassword({
-    //   token,
-    //   email,
-    //   password,
-    //   password_confirmation: confirmPassword,
-    // });
+    setLoading(true);
 
-    setSuccess(true);
+    try {
+      const apiBaseUrl = import.meta.env.VITE_LARAVEL_API_URL?.replace(/\/+$/, "");
+
+      if (!apiBaseUrl) {
+        throw new Error("Password reset is not available right now. Please try again later.");
+      }
+
+      const response = await fetch(`${apiBaseUrl}/auth/change/password`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          token,
+          password,
+          password_confirmation: confirmPassword,
+        }),
+      });
+      const data = (await response.json().catch(() => null)) || {};
+
+      if (!response.ok || !data.success) {
+        const validationError = Object.values(data.errors || {})
+          .flat()
+          .find(Boolean);
+
+        throw new Error(
+          validationError ||
+            data.message ||
+            `Unable to reset your password (HTTP ${response.status}). Please try again.`
+        );
+      }
+
+      setSuccessMessage(
+        data.message ||
+          "Password reset successfully. You can now log in with your new password."
+      );
+      setSuccess(true);
+    } catch (requestError) {
+      setError(requestError.message || "Unable to reset your password. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (success) {
@@ -87,19 +125,17 @@ export default function ResetPassword() {
           </h2>
 
           <p>
-            Your password has been changed successfully.
-            Your account is ready to use.
+            {successMessage}
           </p>
 
-          <button
-            type="button"
+          <Link
+            to="/login"
             className="btn btn-primary btn-lg btn-full"
-            onClick={() => navigate("/login")}
           >
             Sign In
 
             <ArrowRight size={18} />
-          </button>
+          </Link>
         </div>
       </AuthLayout>
     );
@@ -241,7 +277,7 @@ export default function ResetPassword() {
 
         {/* ===  ERROR ===== */}
         {error && (
-          <div className="auth-error">
+          <div className="auth-error" role="alert">
             {error}
           </div>
         )}
@@ -250,10 +286,11 @@ export default function ResetPassword() {
         <button
           type="submit"
           className="btn btn-primary btn-lg btn-full auth-submit"
+          disabled={loading}
         >
-          Reset Password
+          {loading ? "Updating Password..." : "Reset Password"}
 
-          <ArrowRight size={18} />
+          {!loading && <ArrowRight size={18} />}
         </button>
 
         {/* = LOGIN ======= */}

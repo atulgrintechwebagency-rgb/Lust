@@ -1,0 +1,163 @@
+.stripchat-model-details {
+  min-height: 70vh;
+  color: var(--white-100);
+}
+
+.stripchat-model-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 28px;
+  color: var(--white-70);
+  text-decoration: none;
+}
+
+.stripchat-model-back:hover {
+  color: var(--white-100);
+}
+
+.stripchat-model-profile {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(280px, 0.9fr);
+  gap: clamp(28px, 5vw, 64px);
+  align-items: center;
+  margin: 0 auto;
+}
+
+.stripchat-model-profile-image {
+  position: relative;
+  overflow: hidden;
+  min-height: 340px;
+  aspect-ratio: 4 / 3;
+  border: 1px solid var(--white-10);
+  border-radius: var(--radius-lg);
+  background: var(--white-05);
+}
+
+.stripchat-model-profile-image img {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  inset: 0;
+  object-fit: cover;
+}
+
+.stripchat-model-live {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  border-radius: var(--radius-sm);
+  background: var(--black-80);
+  color: var(--white-100);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.stripchat-model-live span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-online);
+}
+
+.stripchat-model-live--offline span {
+  background: var(--white-60);
+}
+
+.stripchat-model-profile-info h1 {
+  margin: 8px 0;
+  color: var(--white-100);
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  overflow-wrap: anywhere;
+}
+
+.stripchat-model-category {
+  margin: 0;
+  color: var(--white-60);
+}
+
+.stripchat-model-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+  margin: 28px 0 18px;
+  color: var(--white-80);
+}
+
+.stripchat-model-stats div,
+.stripchat-model-languages {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.stripchat-model-stats svg,
+.stripchat-model-languages svg {
+  color: var(--color-primary);
+}
+
+.stripchat-model-languages {
+  color: var(--white-70);
+}
+
+.stripchat-model-resolution {
+  margin: 16px 0 0;
+  color: var(--white-70);
+  font-size: 0.9rem;
+}
+
+.stripchat-model-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+.stripchat-model-tags span {
+  padding: 6px 10px;
+  border: 1px solid var(--white-10);
+  border-radius: 999px;
+  color: var(--white-80);
+  font-size: 0.8rem;
+}
+
+.stripchat-model-description {
+  margin: 24px 0;
+  color: var(--white-60);
+  line-height: 1.7;
+}
+
+.stripchat-model-open {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.stripchat-model-message {
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+  padding: 80px 20px;
+  text-align: center;
+  color: var(--white-80);
+}
+
+.stripchat-model-message h1,
+.stripchat-model-message p {
+  margin: 0;
+}
+
+@media (max-width: 760px) {
+  .stripchat-model-profile {
+    grid-template-columns: 1fr;
+  }
+
+  .stripchat-model-profile-image {
+    min-height: 240px;
+  }
+}

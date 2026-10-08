@@ -1,76 +1,34 @@
-import React, { useState, useRef } from "react";
-import { Link } from "react-router-dom";
+import { useState, useRef } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Heart, ChevronLeft, ChevronRight } from "lucide-react";
+import { useIsAuthenticated } from "../utils/auth";
+import useStripchatModels from "../hooks/useStripchatModels";
+import StripchatApiSkeleton from "./StripchatApiSkeleton";
 import "./AiCompanions.css";
 
 function AiCompanions({ limit }) {
   const scrollContainerRef = useRef(null);
-
-  const companionsData = [
-    {
-      id: "sophie",
-      name: "Sophie",
-      tagline: "The Sweetheart",
-      image: "/Images/aria.webp",
-      isOnline: true,
-    },
-    {
-      id: "mia",
-      name: "Mia",
-      tagline: "The Tease",
-      image: "/Images/Mia.webp",
-      isOnline: true,
-    },
-    {
-      id: "luna",
-      name: "Luna",
-      tagline: "The Adventurer",
-      image: "/Images/Luna.webp",
-      isOnline: true,
-    },
-    {
-      id: "aria",
-      name: "Aria",
-      tagline: "The Dreamer",
-      image: "/Images/aria.webp",
-      isOnline: true,
-    },
-    {
-      id: "nina",
-      name: "Nina",
-      tagline: "The Wild One",
-      image: "/Images/Luna.webp",
-      isOnline: true,
-    },
-    {
-      id: "chloe",
-      name: "Chloe",
-      tagline: "The Girl Next Door",
-      image: "/Images/Chloe.webp",
-      isOnline: true,
-    },
-  ];
+  const authenticated = useIsAuthenticated();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { models, loading, error, retry } = useStripchatModels();
 
   const [favorites, setFavorites] = useState({});
-
-  /*
-   * If limit is provided:
-   *   <AiCompanions limit={4} />
-   *
-   * only the first 4 companions are displayed.
-   *
-   * If no limit is provided:
-   *   <AiCompanions />
-   *
-   * all companions are displayed.
-   */
-  const displayedCompanions = limit
-    ? companionsData.slice(0, limit)
-    : companionsData;
+  const displayedCompanions = limit ? models.slice(0, limit) : models;
 
   const toggleFavorite = (id, event) => {
     event.preventDefault();
     event.stopPropagation();
+
+    if (!authenticated) {
+      window.dispatchEvent(
+        new CustomEvent("auth-change", {
+          detail: { message: "Sign in to save favorites." },
+        })
+      );
+      navigate("/login", { state: { from: location } });
+      return;
+    }
 
     setFavorites((prev) => ({
       ...prev,
@@ -80,15 +38,10 @@ function AiCompanions({ limit }) {
 
   const handleScroll = (direction) => {
     if (scrollContainerRef.current) {
-      const cardWidth = 174;
-
-      const scrollAmount =
-        direction === "left"
-          ? -cardWidth * 2
-          : cardWidth * 2;
+      const scrollAmount = scrollContainerRef.current.clientWidth * 0.8;
 
       scrollContainerRef.current.scrollBy({
-        left: scrollAmount,
+        left: direction === "left" ? -scrollAmount : scrollAmount,
         behavior: "smooth",
       });
     }
@@ -146,12 +99,28 @@ function AiCompanions({ limit }) {
           ref={scrollContainerRef}
         >
 
-          {displayedCompanions.map((companion) => (
+          {loading ? (
+            <StripchatApiSkeleton
+              variant="carousel"
+              count={limit || 6}
+            />
+          ) : error ? (
+            <div className="companions-api-message" role="alert">
+              <span>{error}</span>
+              <button type="button" onClick={retry}>Try again</button>
+            </div>
+          ) : displayedCompanions.length === 0 ? (
+            <p className="companions-api-message" role="status">
+              No companions are available right now.
+            </p>
+          ) : displayedCompanions.map((companion) => (
 
             <Link
               key={companion.id}
-              to={`/Companions/${companion.id}`}
-              className="companion-card card overflow-hidden"
+              to={authenticated ? `/companions/${companion.id}` : "/login"}
+              className={`companion-card card overflow-hidden ${
+                authenticated ? "" : "guest-locked-card"
+              }`}
             >
 
               {/* IMAGE */}
@@ -159,9 +128,17 @@ function AiCompanions({ limit }) {
 
                 <img
                   src={companion.image}
-                  alt={companion.name}
-                  className="image-cover companion-profile-img"
+                  alt={authenticated ? companion.name : "Blurred companion preview"}
+                  className={`image-cover companion-profile-img ${
+                    authenticated ? "" : "guest-blurred-image"
+                  }`}
                 />
+
+                {!authenticated && (
+                  <div className="guest-image-overlay">
+                    <span>Sign in to view</span>
+                  </div>
+                )}
 
                 <div className="card-ambient-overlay"></div>
 
@@ -180,7 +157,7 @@ function AiCompanions({ limit }) {
                     </h3>
 
                     <p className="companion-tagline">
-                      {companion.tagline}
+                      {companion.type}
                     </p>
 
                   </div>
@@ -197,7 +174,11 @@ function AiCompanions({ limit }) {
                     onClick={(e) =>
                       toggleFavorite(companion.id, e)
                     }
-                    aria-label={`Add ${companion.name} to favorites`}
+                    aria-label={
+                      authenticated
+                        ? `Add ${companion.name} to favorites`
+                        : `Sign in to add ${companion.name} to favorites`
+                    }
                   >
 
                     <Heart
@@ -216,17 +197,15 @@ function AiCompanions({ limit }) {
 
 
                 {/* ONLINE STATUS */}
-                {companion.isOnline && (
-                  <div className="status-badge flex items-center gap-xs">
+                <div className="status-badge flex items-center gap-xs">
 
-                    <span className="status-dot-pulse"></span>
+                  <span className="status-dot-pulse"></span>
 
-                    <span className="status-text-label">
-                      Online
-                    </span>
+                  <span className="status-text-label">
+                    Online
+                  </span>
 
-                  </div>
-                )}
+                </div>
 
               </div>
 

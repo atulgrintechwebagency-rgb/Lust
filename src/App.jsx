@@ -73,8 +73,22 @@ function App() {
             </RequireAuth>
           }
         />
-        <Route path="/my-account" element={<MyAccount />} /> 
-        <Route path="/my-account/edit" element={<EditProfile />}/>    
+        <Route
+          path="/my-account"
+          element={
+            <RequireAuth>
+              <MyAccount />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/my-account/edit"
+          element={
+            <RequireAuth>
+              <EditProfile />
+            </RequireAuth>
+          }
+        />
       </Routes>
       <Footer />
     </BrowserRouter>

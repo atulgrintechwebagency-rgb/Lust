@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import {
   Crown,
   Check,
@@ -13,67 +14,13 @@ import {
   ArrowRight,
 } from 'lucide-react';
 
+import { useIsAuthenticated } from '../utils/auth';
+import { getAccountUser } from '../utils/account';
 import './MembershipPlans.css';
 
-const plans = [
-  {
-    name: 'Basic',
-    label: 'Start Exploring',
-
-    monthlyPrice: '9.99',
-    yearlyPrice: '7.99',
-
-    features: [
-      'Chat with AI companions',
-      'Limited voice notes',
-      'Standard models',
-      'Access to selected companions',
-    ],
-
-    monthlyButton: 'Get Started',
-    yearlyButton: 'Get Started',
-  },
-
-  {
-    name: 'Premium',
-    label: 'Most Loved',
-
-    monthlyPrice: '19.99',
-    yearlyPrice: '14.99',
-
-    features: [
-      'Unlimited chat & voice notes',
-      'Access to all companions',
-      'Exclusive roleplay scenarios',
-      'Priority experience',
-      'Premium companion access',
-    ],
-
-    monthlyButton: 'Get Premium',
-    yearlyButton: 'Get Premium',
-
-    popular: true,
-  },
-
-  {
-    name: 'Elite',
-    label: 'Ultimate Access',
-
-    monthlyPrice: '39.99',
-    yearlyPrice: '29.99',
-
-    features: [
-      'All Premium features',
-      'Early access to new models',
-      'Custom companion requests',
-      'VIP support',
-      'Exclusive experiences',
-    ],
-
-    monthlyButton: 'Go Elite',
-    yearlyButton: 'Go Elite',
-  },
-];
+const membershipPlansUrl = import.meta.env.VITE_LARAVEL_API_URL
+  ? `${import.meta.env.VITE_LARAVEL_API_URL.replace(/\/+$/, "")}/membership-plans`
+  : "https://lustcompanion.com/backend/api/membership-plans";
 
 const benefits = [
   {
@@ -102,55 +49,66 @@ const benefits = [
   },
 ];
 
-const comparisonFeatures = [
-  {
-    label: 'AI Companion Chat',
-    basic: true,
-    premium: true,
-    elite: true,
-  },
-  {
-    label: 'Voice Notes',
-    basic: 'Limited',
-    premium: 'Unlimited',
-    elite: 'Unlimited',
-  },
-  {
-    label: 'Companion Access',
-    basic: 'Selected',
-    premium: 'All',
-    elite: 'All',
-  },
-  {
-    label: 'Exclusive Scenarios',
-    basic: false,
-    premium: true,
-    elite: true,
-  },
-  {
-    label: 'Early Model Access',
-    basic: false,
-    premium: false,
-    elite: true,
-  },
-  {
-    label: 'Custom Companion Requests',
-    basic: false,
-    premium: false,
-    elite: true,
-  },
-  {
-    label: 'VIP Support',
-    basic: false,
-    premium: false,
-    elite: true,
-  },
-];
-
 function MembershipPlans() {
-  const [billing, setBilling] = useState('monthly');
+  const [plans, setPlans] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [retryKey, setRetryKey] = useState(0);
+  const [selectionNotice, setSelectionNotice] = useState("");
+  const authenticated = useIsAuthenticated();
+  const currentMembership = String(getAccountUser().membership || "").toLowerCase();
 
-  const isYearly = billing === 'yearly';
+  useEffect(() => {
+    const controller = new AbortController();
+
+    const loadPlans = async () => {
+      setLoading(true);
+      setError("");
+
+      try {
+        const response = await fetch(membershipPlansUrl, {
+          headers: { Accept: "application/json" },
+          signal: controller.signal,
+        });
+        const result = (await response.json().catch(() => null)) || {};
+
+        if (!response.ok || !result.success) {
+          throw new Error(
+            result.message ||
+              `Unable to load membership plans (HTTP ${response.status}).`
+          );
+        }
+
+        const memberships = result.data?.memberships;
+        if (
+          !Array.isArray(memberships) ||
+          memberships.some(
+            (plan) =>
+              !plan ||
+              typeof plan.id !== "number" ||
+              typeof plan.name !== "string" ||
+              typeof plan.slug !== "string" ||
+              !Array.isArray(plan.features)
+          )
+        ) {
+          throw new Error("Membership service returned an invalid plans response.");
+        }
+
+        setPlans(memberships);
+      } catch (requestError) {
+        if (!controller.signal.aborted) {
+          setError(requestError.message || "Unable to load membership plans.");
+        }
+      } finally {
+        if (!controller.signal.aborted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    loadPlans();
+    return () => controller.abort();
+  }, [retryKey]);
 
   return (
     <main className="membership-page">
@@ -275,73 +233,50 @@ function MembershipPlans() {
             </div>
 
 
-            <div className="membership-billing-wrapper">
-
-              <span className="membership-save-badge">
-                Save up to 50%
-              </span>
-
-              <div
-                className="membership-toggle"
-                role="group"
-                aria-label="Billing frequency"
-              >
-
-                <button
-                  type="button"
-                  className={`membership-toggle-btn ${
-                    billing === 'monthly' ? 'active' : ''
-                  }`}
-                  onClick={() => setBilling('monthly')}
-                  aria-pressed={billing === 'monthly'}
-                >
-                  Monthly
-                </button>
-
-                <button
-                  type="button"
-                  className={`membership-toggle-btn ${
-                    billing === 'yearly' ? 'active' : ''
-                  }`}
-                  onClick={() => setBilling('yearly')}
-                  aria-pressed={billing === 'yearly'}
-                >
-                  Yearly
-                  <span>Save</span>
-                </button>
-
-              </div>
-
-            </div>
-
           </div>
 
 
           {/* PRICING CARDS */}
 
           <div className="membership-plans">
-
-            {plans.map((plan) => {
-
-              const currentPrice = isYearly
-                ? plan.yearlyPrice
-                : plan.monthlyPrice;
-
-              const currentButton = isYearly
-                ? plan.yearlyButton
-                : plan.monthlyButton;
+            {loading ? (
+              <p className="membership-api-message" role="status">
+                Loading membership plans…
+              </p>
+            ) : error ? (
+              <div className="membership-api-message" role="alert">
+                <span>{error}</span>
+                <button
+                  type="button"
+                  onClick={() => setRetryKey((key) => key + 1)}
+                >
+                  Try again
+                </button>
+              </div>
+            ) : plans.length === 0 ? (
+              <p className="membership-api-message" role="status">
+                No membership plans are available right now.
+              </p>
+            ) : plans.map((plan) => {
+              const price = Number(plan.price);
+              const formattedPrice = Number.isFinite(price)
+                ? new Intl.NumberFormat(undefined, {
+                    style: "currency",
+                    currency: plan.currency || "USD",
+                  }).format(price)
+                : `${plan.currency || "USD"} ${plan.price}`;
 
               return (
                 <article
-                  key={plan.name}
+                  key={plan.id}
                   className={`membership-card ${
-                    plan.popular
+                    plan.is_popular
                       ? 'membership-card-popular'
                       : ''
                   }`}
                 >
 
-                  {plan.popular && (
+                  {plan.is_popular && (
                     <div className="membership-popular">
                       <Star size={14} fill="currentColor" />
                       Most Popular
@@ -353,7 +288,7 @@ function MembershipPlans() {
                     <div className="membership-plan-top">
 
                       <span className="membership-plan-label">
-                        {plan.label}
+                        {plan.tagline}
                       </span>
 
                       <h3 className="membership-plan-name font-heading">
@@ -366,21 +301,14 @@ function MembershipPlans() {
                     <div className="membership-price-row">
 
                       <span className="membership-price font-heading">
-                        ${currentPrice}
+                        {formattedPrice}
                       </span>
 
                       <span className="membership-period">
-                        / month
+                        / {plan.billing_period}
                       </span>
 
                     </div>
-
-
-                    {isYearly && (
-                      <p className="membership-yearly-note">
-                        Billed annually
-                      </p>
-                    )}
 
 
                     <div className="membership-divider" />
@@ -409,18 +337,41 @@ function MembershipPlans() {
                     </ul>
 
 
-                    <a
-                      href="/signup"
-                      className={`membership-button ${
-                        plan.popular
-                          ? 'membership-button-primary'
-                          : ''
-                      }`}
-                    >
-                      {currentButton}
-                      <ArrowRight size={17} />
-                    </a>
-
+                    {authenticated ? (
+                      <button
+                        type="button"
+                        className={`membership-button ${
+                          plan.is_popular
+                            ? 'membership-button-primary'
+                            : ''
+                        }`}
+                        disabled={currentMembership === plan.slug.toLowerCase()}
+                        onClick={() => setSelectionNotice(
+                          `The ${plan.name} plan is available to view, but plan changes are not available yet.`
+                        )}
+                      >
+                        {currentMembership === plan.slug.toLowerCase()
+                          ? "Current Plan"
+                          : `Choose ${plan.name}`}
+                        {currentMembership !== plan.slug.toLowerCase() && (
+                          <ArrowRight size={17} />
+                        )}
+                      </button>
+                    ) : (
+                      <Link
+                        to={`/register?plan=${encodeURIComponent(plan.slug)}`}
+                        className={`membership-button ${
+                          plan.is_popular
+                            ? 'membership-button-primary'
+                            : ''
+                        }`}
+                      >
+                        {plan.name === "Basic"
+                          ? "Get Started"
+                          : `Get ${plan.name}`}
+                        <ArrowRight size={17} />
+                      </Link>
+                    )}
                   </div>
 
                 </article>
@@ -428,6 +379,12 @@ function MembershipPlans() {
             })}
 
           </div>
+
+          {selectionNotice && (
+            <p className="membership-selection-notice" role="status">
+              {selectionNotice}
+            </p>
+          )}
 
 
           <div className="membership-trust-row">
@@ -554,32 +511,6 @@ function MembershipPlans() {
       </section>
 
     </main>
-  );
-}
-
-
-function ComparisonValue({ value }) {
-
-  if (value === true) {
-    return (
-      <span className="comparison-check">
-        <Check size={15} />
-      </span>
-    );
-  }
-
-  if (value === false) {
-    return (
-      <span className="comparison-dash">
-        —
-      </span>
-    );
-  }
-
-  return (
-    <span className="comparison-text">
-      {value}
-    </span>
   );
 }
 

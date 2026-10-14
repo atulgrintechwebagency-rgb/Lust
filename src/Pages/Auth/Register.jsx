@@ -243,6 +243,16 @@ export default function Register() {
         );
       }
 
+      const token = data.data?.token;
+      const user = data.data?.user;
+      if (token) {
+        sessionStorage.setItem("auth_token", token);
+        if (user) {
+          sessionStorage.setItem("auth_user", JSON.stringify(user));
+        }
+        window.dispatchEvent(new CustomEvent("auth-change"));
+      }
+
       setSuccessMessage(
         data.message || "Registration successful. Please verify your email."
       );

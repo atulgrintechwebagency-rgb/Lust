@@ -13,96 +13,30 @@ import {
     ArrowRight,
 } from "lucide-react";
 
+import { getAccountAvatarUrl, getAccountUser } from "../../utils/account";
+import useAccountAvatar from "../../hooks/useAccountAvatar";
+import useLikes from "../../hooks/useLikes";
+import useStripchatModels from "../../hooks/useStripchatModels";
 import "./MyAccount.css";
 
-const likedProfiles = [
-    {
-        id: 1,
-        name: "Angelica",
-        tagline: "Big Tits",
-        viewers: "1.2K",
-        image: "/Images/Chloe.webp",
-    },
-    {
-        id: 2,
-        name: "Kira",
-        tagline: "Brunette",
-        viewers: "842",
-        image: "/Images/Luna.webp",
-    },
-    {
-        id: 3,
-        name: "Lexi",
-        tagline: "Petite",
-        viewers: "693",
-        image: "/Images/aria.webp",
-    },
-    {
-        id: 4,
-        name: "Valentina",
-        tagline: "Latina",
-        viewers: "521",
-        image: "/Images/Luna.webp",
-    },
-];
+const getMemberSince = (createdAt) => {
+    if (!createdAt) {
+        return "—";
+    }
 
-const liveModels = [
-    {
-        id: 1,
-        name: "Angelica",
-        tagline: "Big Tits",
-        viewers: "1.2K",
-        image: "/Images/Chloe.webp",
-    },
-    {
-        id: 2,
-        name: "Kira",
-        tagline: "Brunette",
-        viewers: "842",
-        image: "/Images/Luna.webp",
-    },
-    {
-        id: 3,
-        name: "Lexi",
-        tagline: "Petite",
-        viewers: "693",
-        image: "/Images/aria.webp",
-    },
-    {
-        id: 4,
-        name: "Valentina",
-        tagline: "Latina",
-        viewers: "521",
-        image: "/Images/Luna.webp",
-    },
-    {
-        id: 5,
-        name: "Harper",
-        tagline: "Blonde",
-        viewers: "404",
-        image: "/Images/Mia.webp",
-    },
-    {
-        id: 6,
-        name: "Sienna",
-        tagline: "Tattooed",
-        viewers: "318",
-        image: "/Images/aria.webp",
-    },
-];
-
-export const accountUser = {
-    firstName: "Alex",
-    lastName: "Morgan",
-    name: "Alex Morgan",
-    username: "alexmorgan",
-    email: "alex@example.com",
-    memberSince: "September 2026",
-    membership: "Premium Member",
-    avatar: "/Images/Avatar.webp",
+    const date = new Date(createdAt);
+    return Number.isNaN(date.getTime())
+        ? "—"
+        : date.toLocaleDateString(undefined, { month: "long", year: "numeric" });
 };
 
-export function AccountSidebar({ activeSection = "profile", onNavigate }) {
+export function AccountSidebar({
+    user,
+    likeCount = 0,
+    activeSection = "profile",
+    onNavigate,
+}) {
+    const avatarUrl = useAccountAvatar(getAccountAvatarUrl(user));
     const handleNavigation = (section) => {
         if (onNavigate) {
             onNavigate(section);
@@ -114,10 +48,14 @@ export function AccountSidebar({ activeSection = "profile", onNavigate }) {
             <div className="account-profile-card">
                 <div className="account-avatar">
                     <img
-                        src={accountUser.avatar}
-                        alt={accountUser.name}
+                        key={avatarUrl}
+                        src={avatarUrl}
+                        alt={user.name}
                         onError={(event) => {
-                            event.currentTarget.style.display = "none";
+                            event.currentTarget.hidden = true;
+                        }}
+                        onLoad={(event) => {
+                            event.currentTarget.hidden = false;
                         }}
                     />
 
@@ -126,15 +64,15 @@ export function AccountSidebar({ activeSection = "profile", onNavigate }) {
                     </div>
                 </div>
 
-                <h2>{accountUser.name}</h2>
+                <h2>{user.name || "My Account"}</h2>
 
                 <span className="account-username">
-                    @{accountUser.username}
+                    @{user.username || ""}
                 </span>
 
                 <span className="account-membership">
                     <span></span>
-                    {accountUser.membership}
+                    {user.membership || "Member"}
                 </span>
 
                 <Link
@@ -175,7 +113,7 @@ export function AccountSidebar({ activeSection = "profile", onNavigate }) {
                     <span>Liked Profiles</span>
 
                     <span className="account-nav-count">
-                        {likedProfiles.length}
+                        {likeCount}
                     </span>
                 </button>
 
@@ -198,7 +136,7 @@ export function AccountSidebar({ activeSection = "profile", onNavigate }) {
     );
 }
 
-function ProfileSection() {
+function ProfileSection({ user, likeCount }) {
     return (
         <div className="account-content-section">
             <div className="account-section-heading">
@@ -249,7 +187,7 @@ function ProfileSection() {
 
                         <div>
                             <span>Full Name</span>
-                            <strong>{accountUser.name}</strong>
+                            <strong>{user.name || "—"}</strong>
                         </div>
                     </div>
 
@@ -260,7 +198,7 @@ function ProfileSection() {
 
                         <div>
                             <span>Username</span>
-                            <strong>@{accountUser.username}</strong>
+                            <strong>{user.username ? `@${user.username}` : "—"}</strong>
                         </div>
                     </div>
 
@@ -271,7 +209,7 @@ function ProfileSection() {
 
                         <div>
                             <span>Email Address</span>
-                            <strong>{accountUser.email}</strong>
+                            <strong>{user.email || "—"}</strong>
                         </div>
                     </div>
 
@@ -282,7 +220,7 @@ function ProfileSection() {
 
                         <div>
                             <span>Member Since</span>
-                            <strong>{accountUser.memberSince}</strong>
+                            <strong>{getMemberSince(user.created_at)}</strong>
                         </div>
                     </div>
                 </div>
@@ -295,7 +233,7 @@ function ProfileSection() {
                     </div>
 
                     <div>
-                        <strong>{likedProfiles.length}</strong>
+                        <strong>{likeCount}</strong>
                         <span>Liked Profiles</span>
                     </div>
                 </div>
@@ -315,22 +253,21 @@ function ProfileSection() {
     );
 }
 
-function LikedProfilesSection() {
-    const [liked, setLiked] = useState(
-        likedProfiles.reduce((accumulator, profile) => {
-            accumulator[profile.id] = true;
-            return accumulator;
-        }, {})
-    );
+function LikedProfilesSection({ likesState, models, modelsLoading, modelsError }) {
+    const likedProfiles = likesState.likes
+        .filter((like) => like.provider === "stripchat")
+        .map((like) => ({
+            ...like,
+            model: models.find(
+                (model) =>
+                    String(model.id) === String(like.external_model_id)
+            ),
+        }));
 
-    const toggleLike = (event, id) => {
+    const removeLike = (event, id) => {
         event.preventDefault();
         event.stopPropagation();
-
-        setLiked((previous) => ({
-            ...previous,
-            [id]: !previous[id],
-        }));
+        likesState.toggleLike(id);
     };
 
     return (
@@ -358,76 +295,108 @@ function LikedProfilesSection() {
                 </Link>
             </div>
 
+            {likesState.error && (
+                <p className="account-api-message" role="alert">
+                    {likesState.error}
+                </p>
+            )}
+            {modelsError && (
+                <p className="account-api-message" role="alert">
+                    {modelsError}
+                </p>
+            )}
+            {likesState.loading && (
+                <p className="account-api-message" role="status">
+                    Loading your liked profiles…
+                </p>
+            )}
             <div className="account-model-grid">
-                {likedProfiles.map((profile) => (
-                    <Link
-                        key={profile.id}
-                        to={`/live-chat/${profile.id}`}
+                {likedProfiles.map(({ id, external_model_id: modelId, model }) => (
+                    <article
+                        key={id}
                         className="account-model-card"
                     >
                         <div className="account-model-image">
-                            <img
-                                src={profile.image}
-                                alt={profile.name}
-                            />
+                            {model?.image ? (
+                                <img src={model.image} alt={model.name} />
+                            ) : (
+                                <div className="account-model-placeholder">
+                                    <Heart size={34} />
+                                </div>
+                            )}
 
-                            <div className="account-model-overlay"></div>
+                            {model && <div className="account-model-overlay"></div>}
 
-                            <span className="account-live-badge">
-                                <span></span>
-                                LIVE
+                            <span className={`account-live-badge${model?.status?.toLowerCase() === "public" ? "" : " account-saved-badge"}`}>
+                                {model?.status?.toLowerCase() === "public" ? (
+                                    <><span></span>LIVE</>
+                                ) : (
+                                    "SAVED"
+                                )}
                             </span>
 
-                            <span className="account-viewer-count">
-                                <Eye size={12} />
-                                {profile.viewers} watching
-                            </span>
+                            {model?.status?.toLowerCase() === "public" && (
+                                <span className="account-viewer-count">
+                                    <Eye size={12} />
+                                    {model.viewers} watching
+                                </span>
+                            )}
 
                             <button
                                 type="button"
-                                className={`account-model-heart ${liked[profile.id] ? "liked" : ""
-                                    }`}
+                                className="account-model-heart liked"
                                 onClick={(event) =>
-                                    toggleLike(event, profile.id)
+                                    removeLike(event, modelId)
                                 }
+                                disabled={likesState.pendingIds.has(String(modelId))}
                                 aria-label={
-                                    liked[profile.id]
-                                        ? `Unlike ${profile.name}`
-                                        : `Like ${profile.name}`
+                                    `Remove model ${modelId} from liked profiles`
                                 }
+                                aria-pressed="true"
                             >
-                                <Heart
-                                    size={16}
-                                    fill={
-                                        liked[profile.id]
-                                            ? "currentColor"
-                                            : "none"
-                                    }
-                                />
+                                <Heart size={16} fill="currentColor" />
                             </button>
                         </div>
 
                         <div className="account-model-info">
                             <div>
-                                <h3>{profile.name}</h3>
+                                <h3>{model?.name || "Stripchat model"}</h3>
 
                                 <p>
-                                    {profile.tagline}
-                                    <span>•</span>
-                                    Live Now
+                                    {model
+                                        ? `${model.type} · ${model.status?.toLowerCase() === "public" ? "Live now" : "Not live"}`
+                                        : `Model ID: ${modelId}`}
                                 </p>
                             </div>
 
-                            <ChevronRight size={16} />
+                            {model && model.status?.toLowerCase() === "public" && (
+                                <Link
+                                    to={`/live-chat/${model.id}`}
+                                    className="account-live-chat-link"
+                                >
+                                    Chat Now
+                                    <ArrowRight size={14} />
+                                </Link>
+                            )}
                         </div>
-                    </Link>
+                    </article>
                 ))}
             </div>
+            {!likesState.loading && !likesState.error && likedProfiles.length === 0 && (
+                <p className="account-api-message" role="status">
+                    You have no liked profiles yet.
+                </p>
+            )}
+            {!modelsLoading && !modelsError && likedProfiles.some((profile) => !profile.model) && (
+                <p className="account-api-message" role="status">
+                    Some saved profiles are outside the current model feed. They remain saved to your account and can still be removed here.
+                </p>
+            )}
         </div>
     );
 }
 
-function SettingsSection() {
+function SettingsSection({ user }) {
     return (
         <div className="account-content-section">
             <div className="account-section-heading">
@@ -453,7 +422,7 @@ function SettingsSection() {
 
                     <div>
                         <h3>Email Address</h3>
-                        <p>{accountUser.email}</p>
+                        <p>{user.email || "—"}</p>
                     </div>
 
                     <Link to="/my-account/edit">
@@ -480,17 +449,11 @@ function SettingsSection() {
     );
 }
 
-function LiveModelsSection() {
-    const [likedModels, setLikedModels] = useState({});
-
-    const toggleLike = (event, id) => {
+function LiveModelsSection({ models, likedIds, pendingIds, onToggleLike }) {
+    const handleLikeClick = (event, id) => {
         event.preventDefault();
         event.stopPropagation();
-
-        setLikedModels((previous) => ({
-            ...previous,
-            [id]: !previous[id],
-        }));
+        onToggleLike(id);
     };
 
     return (
@@ -520,7 +483,7 @@ function LiveModelsSection() {
                 </div>
 
                 <div className="account-live-grid">
-                    {liveModels.slice(0, 4).map((model) => (
+                    {models.slice(0, 4).map((model) => (
                         <Link
                             key={model.id}
                             to={`/live-chat/${model.id}`}
@@ -541,28 +504,29 @@ function LiveModelsSection() {
                                 </span>
 
                                 <div className="account-live-card-viewers">
-                                    <Eye size={12} />
+                                    <Eye size={16} />
                                     {model.viewers}
                                 </div>
 
                                 <button
                                     type="button"
-                                    className={`account-live-heart ${likedModels[model.id] ? "liked" : ""
+                                    className={`account-live-heart ${likedIds.has(String(model.id)) ? "liked" : ""
                                         }`}
                                     onClick={(event) =>
-                                        toggleLike(event, model.id)
+                                        handleLikeClick(event, model.id)
                                     }
+                                    disabled={pendingIds.has(String(model.id))}
                                     aria-label={
-                                        likedModels[model.id]
+                                        likedIds.has(String(model.id))
                                             ? `Unlike ${model.name}`
                                             : `Like ${model.name}`
                                     }
-                                    aria-pressed={Boolean(likedModels[model.id])}
+                                    aria-pressed={likedIds.has(String(model.id))}
                                 >
                                     <Heart
                                         size={16}
                                         fill={
-                                            likedModels[model.id]
+                                            likedIds.has(String(model.id))
                                                 ? "currentColor"
                                                 : "none"
                                         }
@@ -575,7 +539,7 @@ function LiveModelsSection() {
                                     <h3>{model.name}</h3>
 
                                     <p>
-                                        {model.tagline}
+                                        {model.type}
                                         <span>•</span>
                                         Live Now
                                     </p>
@@ -583,7 +547,7 @@ function LiveModelsSection() {
 
                                 <span className="account-live-chat-link">
                                     Chat Now
-                                    <ArrowRight size={14} />
+                                    <ArrowRight size={16} />
                                 </span>
                             </div>
                         </Link>
@@ -596,17 +560,38 @@ function LiveModelsSection() {
 
 function MyAccount() {
     const [activeSection, setActiveSection] = useState("profile");
+    const [user, setUser] = useState(getAccountUser);
+    const likesState = useLikes();
+    const { models, loading: modelsLoading, error: modelsError } = useStripchatModels();
+
+    React.useEffect(() => {
+        const syncUser = () => setUser(getAccountUser());
+        window.addEventListener("auth-change", syncUser);
+        window.addEventListener("storage", syncUser);
+
+        return () => {
+            window.removeEventListener("auth-change", syncUser);
+            window.removeEventListener("storage", syncUser);
+        };
+    }, []);
 
     const renderContent = () => {
         if (activeSection === "liked") {
-            return <LikedProfilesSection />;
+            return (
+                <LikedProfilesSection
+                    likesState={likesState}
+                    models={models}
+                    modelsLoading={modelsLoading}
+                    modelsError={modelsError}
+                />
+            );
         }
 
         if (activeSection === "settings") {
-            return <SettingsSection />;
+            return <SettingsSection user={user} />;
         }
 
-        return <ProfileSection />;
+        return <ProfileSection user={user} likeCount={likesState.total} />;
     };
 
     return (
@@ -615,18 +600,30 @@ function MyAccount() {
                 <div className="container">
                     <div className="account-layout">
                         <AccountSidebar
+                            user={user}
+                            likeCount={likesState.total}
                             activeSection={activeSection}
                             onNavigate={setActiveSection}
                         />
 
                         <div className="account-main">
+                            {likesState.error && activeSection !== "liked" && (
+                                <p className="account-api-message" role="alert">
+                                    {likesState.error}
+                                </p>
+                            )}
                             {renderContent()}
 
 
                         </div>
                     </div>
                 </div>
-                <LiveModelsSection />
+                <LiveModelsSection
+                    models={models}
+                    likedIds={likesState.likedIds}
+                    pendingIds={likesState.pendingIds}
+                    onToggleLike={likesState.toggleLike}
+                />
             </main>
         </>
     );

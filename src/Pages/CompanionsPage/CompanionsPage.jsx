@@ -7,6 +7,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { useIsAuthenticated } from "../../utils/auth";
+import useLikes from "../../hooks/useLikes";
 import useStripchatModels from "../../hooks/useStripchatModels";
 import StripchatApiSkeleton from "../../Components/StripchatApiSkeleton";
 import ModelPagination, {
@@ -20,8 +21,8 @@ export default function CompanionsPage() {
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
   const [currentPage, setCurrentPage] = useState(1);
-  const [favorites, setFavorites] = useState([]);
   const authenticated = useIsAuthenticated();
+  const likesState = useLikes();
   const { models, loading, error, retry } = useStripchatModels();
   const location = useLocation();
   const navigate = useNavigate();
@@ -65,11 +66,7 @@ export default function CompanionsPage() {
       return;
     }
 
-    setFavorites((current) =>
-      current.includes(id)
-        ? current.filter((item) => item !== id)
-        : [...current, id]
-    );
+    likesState.toggleLike(id);
   };
 
   return (
@@ -248,7 +245,7 @@ export default function CompanionsPage() {
               {paginatedCompanions.map((companion) => {
 
                 const isFavorite =
-                  favorites.includes(companion.id);
+                  likesState.likedIds.has(String(companion.id));
 
                 return (
 
@@ -298,6 +295,7 @@ export default function CompanionsPage() {
                       onClick={(event) =>
                         toggleFavorite(companion.id, event)
                       }
+                      disabled={likesState.pendingIds.has(String(companion.id))}
                       aria-label={
                         !authenticated
                           ? `Sign in to add ${companion.name} to favorites`

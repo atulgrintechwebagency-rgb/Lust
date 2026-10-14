@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useMemo, useState } from 'react';
 import {
   ArrowRight,
@@ -16,6 +16,7 @@ import { useIsAuthenticated } from '../../utils/auth';
 import useStripchatModels, {
   isStripchatModelLive,
 } from '../../hooks/useStripchatModels';
+import useLikes from '../../hooks/useLikes';
 import StripchatApiSkeleton from '../../Components/StripchatApiSkeleton';
 import ModelPagination, {
   MODEL_PAGE_SIZE,
@@ -33,17 +34,13 @@ const categories = [
 
 /* =======  LIVE MODEL CARD ==== */
 
-function LiveModelCard({ model }) {
-
-  const [liked, setLiked] = useState(false);
+function LiveModelCard({ model, liked, pending, onToggleLike }) {
   const authenticated = useIsAuthenticated();
-  
 
   const handleLike = (event) => {
     event.preventDefault();
     event.stopPropagation();
-
-    setLiked((previousLiked) => !previousLiked);
+    onToggleLike(model.id);
   };
 
   return (
@@ -83,6 +80,7 @@ function LiveModelCard({ model }) {
           type="button"
           className={`live-model-favorite icon-btn ${liked ? 'liked' : ''}`}
           onClick={handleLike}
+          disabled={pending}
           aria-label={
             liked
               ? `Remove ${model.name} from favorites`
@@ -128,6 +126,9 @@ function LiveModelCard({ model }) {
 function LivemodelPage() {
   const authenticated = useIsAuthenticated();
   const { models, loading, error, retry } = useStripchatModels();
+  const likesState = useLikes();
+  const location = useLocation();
+  const navigate = useNavigate();
   const [activeCategory, setActiveCategory] = useState('All');
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -171,6 +172,19 @@ function LivemodelPage() {
   const clearSearch = () => {
     setSearchTerm('');
     setCurrentPage(1);
+  };
+
+  const toggleModelLike = (id) => {
+    if (!authenticated) {
+      window.dispatchEvent(
+        new CustomEvent("auth-change", {
+          detail: { message: "Sign in to save favorites." },
+        })
+      );
+      navigate("/login", { state: { from: location } });
+      return;
+    }
+    likesState.toggleLike(id);
   };
 
 
@@ -329,6 +343,9 @@ function LivemodelPage() {
                 <LiveModelCard
                   key={model.id}
                   model={model}
+                  liked={likesState.likedIds.has(String(model.id))}
+                  pending={likesState.pendingIds.has(String(model.id))}
+                  onToggleLike={toggleModelLike}
                 />
 
               ))}

@@ -1,7 +1,8 @@
-import { useState, useRef } from "react";
+import { useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Heart, ChevronLeft, ChevronRight } from "lucide-react";
 import { useIsAuthenticated } from "../utils/auth";
+import useLikes from "../hooks/useLikes";
 import useStripchatModels from "../hooks/useStripchatModels";
 import StripchatApiSkeleton from "./StripchatApiSkeleton";
 import "./AiCompanions.css";
@@ -13,7 +14,7 @@ function AiCompanions({ limit }) {
   const navigate = useNavigate();
   const { models, loading, error, retry } = useStripchatModels();
 
-  const [favorites, setFavorites] = useState({});
+  const likesState = useLikes();
   const displayedCompanions = limit ? models.slice(0, limit) : models;
 
   const toggleFavorite = (id, event) => {
@@ -30,10 +31,7 @@ function AiCompanions({ limit }) {
       return;
     }
 
-    setFavorites((prev) => ({
-      ...prev,
-      [id]: !prev[id],
-    }));
+    likesState.toggleLike(id);
   };
 
   const handleScroll = (direction) => {
@@ -167,7 +165,7 @@ function AiCompanions({ limit }) {
                   <button
                     type="button"
                     className={`favorite-action-btn flex-center ${
-                      favorites[companion.id]
+                      likesState.likedIds.has(String(companion.id))
                         ? "is-liked"
                         : ""
                     }`}
@@ -176,15 +174,19 @@ function AiCompanions({ limit }) {
                     }
                     aria-label={
                       authenticated
-                        ? `Add ${companion.name} to favorites`
+                        ? likesState.likedIds.has(String(companion.id))
+                          ? `Remove ${companion.name} from favorites`
+                          : `Add ${companion.name} to favorites`
                         : `Sign in to add ${companion.name} to favorites`
                     }
+                    aria-pressed={likesState.likedIds.has(String(companion.id))}
+                    disabled={likesState.pendingIds.has(String(companion.id))}
                   >
 
                     <Heart
                       size={25}
                       fill={
-                        favorites[companion.id]
+                        likesState.likedIds.has(String(companion.id))
                           ? "var(--color-primary)"
                           : "transparent"
                       }

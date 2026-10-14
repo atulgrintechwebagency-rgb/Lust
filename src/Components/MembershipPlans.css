@@ -428,6 +428,39 @@
   align-items: stretch;
 }
 
+.membership-api-message {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  color: rgba(255, 255, 255, 0.78);
+  text-align: center;
+}
+
+.membership-api-message button {
+  display: block;
+  margin: 12px auto 0;
+  padding: 8px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+}
+
+.membership-selection-notice {
+  margin: 18px 0 0;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 14px;
+  text-align: center;
+}
+
+.membership-button:disabled {
+  cursor: default;
+  opacity: 0.75;
+}
+
 .membership-card {
   position: relative;
   overflow: hidden;

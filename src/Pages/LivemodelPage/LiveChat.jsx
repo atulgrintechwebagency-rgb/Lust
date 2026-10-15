@@ -7,7 +7,9 @@ import {
   MessageCircle,
 } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
-import useStripchatModels from "../../hooks/useStripchatModels";
+import useStripchatModels, {
+  isStripchatModelLive,
+} from "../../hooks/useStripchatModels";
 import StripchatApiSkeleton from "../../Components/StripchatApiSkeleton";
 import "./LiveChat.css";
 
@@ -30,6 +32,66 @@ const safeRoomReplies = [
   "Thanks for keeping the chat friendly! ✨",
   "Great to have you here! 👋",
 ];
+
+function RelatedModels({ currentModel, models }) {
+  const relatedModels = models
+    .filter(
+      (item) =>
+        String(item.id) !== String(currentModel.id) &&
+        isStripchatModelLive(item)
+    )
+    .slice(0, 4);
+
+  if (relatedModels.length === 0) return null;
+
+  return (
+    <section className="related-models-section">
+      <div className="container">
+        <div className="related-models-heading">
+          <div>
+            <span className="section-eyebrow">LIVE RIGHT NOW</span>
+            <h2>Related Live Models</h2>
+          </div>
+          <Link to="/live-models" className="related-models-view-all">
+            View all <span aria-hidden="true">→</span>
+          </Link>
+        </div>
+        <div className="related-models-grid">
+          {relatedModels.map((item) => (
+            <Link
+              key={item.id}
+              to={`/live-chat/${encodeURIComponent(item.id)}`}
+              className="related-model-card"
+            >
+              <div className="related-model-image-wrap">
+                {item.image && (
+                  <img
+                    src={item.image}
+                    alt={`${item.name} preview`}
+                    className="related-model-image"
+                    loading="lazy"
+                  />
+                )}
+                <span className="related-model-status">
+                  <span />
+                  Live
+                </span>
+                <span className="related-model-viewers">
+                  <Eye size={14} />
+                  {item.viewers}
+                </span>
+              </div>
+              <div className="related-model-info">
+                <h3>{item.name}</h3>
+                <span>{item.category} model</span>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
 
 export default function LiveChat() {
   const { modelId } = useParams();
@@ -417,6 +479,7 @@ export default function LiveChat() {
           )}
         </div>
       </section>
+      <RelatedModels currentModel={model} models={models} />
     </main>
   );
 }

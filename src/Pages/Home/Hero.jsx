@@ -57,7 +57,7 @@ function Hero() {
     setTimeout(() => {
       setCurrentSlide((prev) => (prev === SLIDER_DATA.length - 1 ? 0 : prev + 1));
       setIsTransitioning(false);
-    }, 3000); // Trigger backdrop transition sequence gracefully
+    }, 3000); 
   };
 
   const currentSlideData = SLIDER_DATA[currentSlide];
@@ -65,9 +65,7 @@ function Hero() {
   return (
     <section className="hero-section overflow-hidden relative">
 
-      {/* =====================================================
-          SLIDER BACKGROUND LAYERS (CROSS-FADE ANIMATION)
-      ====================================================== */}
+      {/* = SLIDER BACKGROUND LAYERS (CROSS-FADE ANIMATION) === */}
       <div className="hero-bg-wrapper absolute inset-0">
         {SLIDER_DATA.map((slide, idx) => (
           <img
@@ -79,19 +77,14 @@ function Hero() {
             }`}
           />
         ))}
-        {/* Unified text layout protection veil */}
         <div className="hero-gradient-overlay" />
       </div>
 
-      {/* =====================================================
-          MAIN LAYOUT CONTAINER
-      ====================================================== */}
+      {/* ==  MAIN LAYOUT CONTAINER ===== */}
       <div className="container hero-container relative">
         <div className="hero-main-layout">
 
-          {/* =================================================
-              LEFT CORE TYPOGRAPHY PANELS (ANIMATED ENTRIES)
-          ================================================== */}
+          {/* === LEFT CORE TYPOGRAPHY PANELS (ANIMATED ENTRIES) ====== */}
           <div key={`left-${currentSlide}`} className="hero-content-wrapper animated-fade-in-up">
 
             <div className="hero-custom-eyebrow font-body text-uppercase">
@@ -143,9 +136,7 @@ function Hero() {
 
           </div>
 
-          {/* =================================================
-              RIGHT VISUAL FLOATING CARD STACK
-          ================================================== */}
+          {/* ======  RIGHT VISUAL FLOATING CARD STACK ====== */}
           <div className="hero-visual-container">
 
             {/* FLOATING SIGNATURE NEON LOGO ELEMENT */}
@@ -165,9 +156,7 @@ function Hero() {
 
         </div>
 
-        {/* =====================================================
-            SLIDER PAGINATION DOT INDICATORS
-        ====================================================== */}
+        {/* =======  SLIDER PAGINATION DOT INDICATORS ==== */}
         <div className="slider-dots-container flex items-center gap-xs">
           {SLIDER_DATA.map((_, idx) => (
             <button
@@ -183,9 +172,7 @@ function Hero() {
 
       </div>
 
-      {/* =====================================================
-          PRE-FOOTER REDIRECT NAVIGATION BAR
-      ====================================================== */}
+      {/* ====  PRE-FOOTER REDIRECT NAVIGATION BAR ===== */}
       <div className="hero-features-bar">
         <div className="container">
           <div className="features-grid-layout">

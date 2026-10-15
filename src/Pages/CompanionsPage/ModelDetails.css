@@ -1,13 +1,185 @@
-/* =========================================================
-   MODEL DETAILS PAGE
-   Uses global index.css variables + utilities
-========================================================= */
+/* =====  MODEL DETAILS  ======= */
 
 .model-page-wrapper {
   min-height: 100vh;
   background: var(--color-black);
   color: var(--white-100);
   overflow: hidden;
+}
+
+.related-models-section {
+  padding: 0 0 80px;
+  background: var(--color-black);
+  color: var(--white-100);
+}
+
+.related-models-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.related-models-heading .section-eyebrow {
+  display: block;
+  margin-bottom: 7px;
+}
+
+.related-models-heading h2 {
+  margin: 0;
+  color: var(--text-light);
+  font-family: var(--font-heading);
+  font-size: clamp(26px, 3vw, 36px);
+  line-height: 1.2;
+}
+
+.related-models-view-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  flex: 0 0 auto;
+  color: var(--color-primary);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.related-models-view-all:hover {
+  color: var(--white-100);
+}
+
+.related-models-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.related-model-card {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--white-10);
+  border-radius: var(--radius-lg);
+  background: #090909;
+  color: inherit;
+  text-decoration: none;
+  transition:
+    transform var(--transition-base),
+    border-color var(--transition-base);
+}
+
+.related-model-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--primary-40);
+}
+
+.related-model-image-wrap {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: #111;
+}
+
+.related-model-image-wrap::after {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.25), transparent 40%, rgba(0, 0, 0, 0.45));
+  content: "";
+  pointer-events: none;
+}
+
+.related-model-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.related-model-card:hover .related-model-image {
+  transform: scale(1.04);
+}
+
+.related-model-status,
+.related-model-viewers {
+  position: absolute;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--white-100);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.related-model-status {
+  top: 10px;
+  left: 10px;
+  padding: 5px 8px;
+  border: 1px solid var(--white-15);
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.68);
+}
+
+.related-model-status > span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-online);
+}
+
+.related-model-viewers {
+  right: 10px;
+  bottom: 10px;
+}
+
+.related-model-info {
+  padding: 13px;
+}
+
+.related-model-info h3 {
+  overflow: hidden;
+  margin: 0;
+  color: var(--text-light);
+  font-family: var(--font-heading);
+  font-size: 18px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.related-model-info > span {
+  display: block;
+  margin-top: 4px;
+  color: var(--white-60);
+  font-size: 13px;
+}
+
+@media (max-width: 900px) {
+  .related-models-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 480px) {
+  .related-models-section {
+    padding-bottom: 48px;
+  }
+
+  .related-models-heading {
+    align-items: flex-start;
+  }
+
+  .related-models-grid {
+    gap: 10px;
+  }
+
+  .related-model-info {
+    padding: 10px;
+  }
+
+  .related-model-info h3 {
+    font-size: 15px;
+  }
 }
 
 .model-details-message {
@@ -49,9 +221,7 @@
     grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
-/* =========================================================
-   TOP PROFILE SECTION
-========================================================= */
+/* === TOP PROFILE SECTION ====== */
 
 .model-profile-section {
   padding-top: 70px;
@@ -63,12 +233,11 @@
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: clamp(40px, 6vw, 90px);
   align-items: center;
+  margin-top: 20px;
 }
 
 
-/* =========================================================
-   LEFT PROFILE MEDIA
-========================================================= */
+/* =====  LEFT PROFILE MEDIA ========= */
 
 .model-profile-media {
   min-width: 0;
@@ -103,7 +272,7 @@
 .main-profile-image {
   display: block;
   width: 100%;
-  aspect-ratio: 4 / 4;
+  aspect-ratio: 4 / 3;
   object-fit: cover;
   transition: transform var(--transition-slow);
 }
@@ -113,9 +282,7 @@
 }
 
 
-/* =========================================================
-   STATUS
-========================================================= */
+/* ====  STATUS ====== */
 
  .model-profile-layout .status-badge {
   position: absolute;
@@ -174,9 +341,7 @@
 }
 
 
-/* =========================================================
-   PROFILE OVERLAY
-========================================================= */
+/* =====  PROFILE OVERLAY ======= */
 
 .profile-overlay-bottom {
   position: absolute;
@@ -197,9 +362,7 @@
 }
 
 
-/* =========================================================
-   PROFILE THUMBNAILS
-========================================================= */
+/* == PROFILE THUMBNAILS ====== */
 
 .profile-mini-gallery {
   display: grid;
@@ -263,9 +426,7 @@
 }
 
 
-/* =========================================================
-   VIEW ALL THUMBNAIL
-========================================================= */
+/* ====   VIEW ALL THUMBNAIL ======== */
 
 .profile-view-all {
   isolation: isolate;
@@ -303,9 +464,7 @@
 }
 
 
-/* =========================================================
-   RIGHT PROFILE CONTENT
-========================================================= */
+/* === RIGHT PROFILE CONTENT ======= */
 
 .model-profile-content {
   min-width: 0;
@@ -317,11 +476,7 @@
 
   color: var(--white-100);
 
-  font-size: clamp(
-    3rem,
-    5vw,
-    5rem
-  );
+  font-size: clamp( 3rem, 3.2vw, 3.2rem  );
 
   line-height: 0.95;
 }
@@ -345,9 +500,7 @@
 }
 
 
-/* =========================================================
-   STATS
-========================================================= */
+/* =====  STATS ========= */
 
 .stats-grid {
   display: grid;
@@ -364,7 +517,7 @@
 }
 
 .stat-item {
-  text-align: center;
+  text-align: left;
 }
 
 .stat-value {
@@ -396,9 +549,7 @@
 }
 
 
-/* =========================================================
-   TAGS
-========================================================= */
+/* = TAGS ======= */
 
 .tag-list {
   display: flex;
@@ -409,9 +560,7 @@
 }
 
 
-/* =========================================================
-   CTA
-========================================================= */
+/* == CTA ========= */
 
 .hero-cta-group {
   display: flex;
@@ -451,9 +600,7 @@
 }
 
 
-/* =========================================================
-   GALLERY SECTION
-========================================================= */
+/* ====  GALLERY SECTION ====== */
 
 .model-gallery-section {
   scroll-margin-top: 30px;
@@ -569,9 +716,7 @@
 }
 
 
-/* =========================================================
-   GALLERY FOOTER
-========================================================= */
+/* === GALLERY FOOTER ======= */
 
 .gallery-footer {
   display: flex;
@@ -608,9 +753,7 @@
 }
 
 
-/* =========================================================
-   LIGHTBOX
-========================================================= */
+/* == LIGHTBOX ====== */
 
 .gallery-lightbox {
   position: fixed;
@@ -765,9 +908,7 @@
 }
 
 
-/* =========================================================
-   PERSONALITY
-========================================================= */
+/* =====  PERSONALITY ======== */
 
 .pink-glow-about {
   bottom: -50px;
@@ -799,9 +940,7 @@
 }
 
 
-/* =========================================================
-   CHAT BUBBLE
-========================================================= */
+/* ===  CHAT BUBBLE ======== */
 
 .chat-bubble-card {
   padding: 30px;
@@ -870,9 +1009,7 @@
 }
 
 
-/* =========================================================
-   PRICING
-========================================================= */
+/* ===  PRICING ======== */
 
 .pricing-grid {
   display: grid;
@@ -1004,9 +1141,7 @@
 }
 
 
-/* =========================================================
-   SIMILAR COMPANIONS
-========================================================= */
+/* =====  SIMILAR COMPANIONS ======= */
 
 .similar-companions-section {
   overflow: hidden;
@@ -1036,18 +1171,10 @@
 }
 
 
-/*
-   We wrap AiCompanions so this page can control its
-   presentation without changing the shared component.
-*/
 .model-details-ai-companions {
   width: 100%;
 }
 
-/*
-   If AiCompanions renders a standard .grid-4, keep four
-   cards in a row on desktop.
-*/
 .model-details-ai-companions .grid-4 {
   grid-template-columns:
     repeat(
@@ -1056,10 +1183,10 @@
     );
 }
 
-
-/* =========================================================
-   RESPONSIVE
-========================================================= */
+.stat-value svg {
+    margin-right: 5px;
+}
+/* ===== RESPONSIVE ======== */
 
 @media (max-width: 1200px) {
 
@@ -1107,11 +1234,7 @@
   }
 
   .model-name {
-    font-size: clamp(
-      2.8rem,
-      8vw,
-      4.2rem
-    );
+    font-size: 1.9rem;
   }
 
   .model-tagline {
@@ -1255,6 +1378,9 @@
     .section-wine{
         padding-bottom: 0px;
     }
+    .model-profile-layout {
+      margin-top: 10px;
+    }
 }
 @media (max-width: 480px) {
 
@@ -1302,9 +1428,7 @@
 }
 
 
-/* =========================================================
-   REDUCED MOTION
-========================================================= */
+/* ==  REDUCED MOTION ======= */
 
 @media (prefers-reduced-motion: reduce) {
 

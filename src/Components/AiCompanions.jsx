@@ -4,6 +4,7 @@ import { Heart, ChevronLeft, ChevronRight } from "lucide-react";
 import { useIsAuthenticated } from "../utils/auth";
 import useLikes from "../hooks/useLikes";
 import useStripchatModels from "../hooks/useStripchatModels";
+import { getModelSlug } from "../utils/modelSlug";
 import StripchatApiSkeleton from "./StripchatApiSkeleton";
 import "./AiCompanions.css";
 
@@ -115,7 +116,13 @@ function AiCompanions({ limit }) {
 
             <Link
               key={companion.id}
-              to={authenticated ? `/companions/${companion.id}` : "/login"}
+              to={
+                authenticated
+                  ? `/companions/${
+                      getModelSlug(companion.name) || companion.id
+                    }`
+                  : "/login"
+              }
               className={`companion-card card overflow-hidden ${
                 authenticated ? "" : "guest-locked-card"
               }`}

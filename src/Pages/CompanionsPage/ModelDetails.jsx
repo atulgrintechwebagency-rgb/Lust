@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ArrowLeft, Eye, Heart, Languages, Video } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
+import { getModelSlug } from "../../utils/modelSlug";
 import useStripchatModels from "../../hooks/useStripchatModels";
 import StripchatApiSkeleton from "../../Components/StripchatApiSkeleton";
 import "./ModelDetails.css";
@@ -15,6 +16,63 @@ const formatCount = (value) => {
     : "0";
 };
 
+function RelatedModels({ currentModel, models }) {
+  const relatedModels = models
+    .filter((item) => String(item.id) !== String(currentModel.id))
+    .sort(
+      (first, second) =>
+        Number(second.category === currentModel.category) -
+        Number(first.category === currentModel.category)
+    )
+    .slice(0, 4);
+
+  if (relatedModels.length === 0) return null;
+
+  return (
+    <section className="related-models-section">
+      <div className="container">
+        <div className="related-models-heading">
+          <div>
+            <span className="section-eyebrow">DISCOVER MORE</span>
+            <h2>Related AI Companions</h2>
+          </div>
+          <Link to="/companions" className="related-models-view-all">
+            View all <span aria-hidden="true">→</span>
+          </Link>
+        </div>
+        <div className="related-models-grid">
+          {relatedModels.map((item) => (
+            <Link
+              key={item.id}
+              to={`/companions/${getModelSlug(item.name) || item.id}`}
+              className="related-model-card"
+            >
+              <div className="related-model-image-wrap">
+                {item.image && (
+                  <img
+                    src={item.image}
+                    alt={`${item.name} preview`}
+                    className="related-model-image"
+                    loading="lazy"
+                  />
+                )}
+                <span className="related-model-status">
+                  <span />
+                  {item.status === "public" ? "Live" : item.status || "Online"}
+                </span>
+              </div>
+              <div className="related-model-info">
+                <h3>{item.name}</h3>
+                <span>{item.category} model</span>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export default function ModelDetails() {
   const { id } = useParams();
   const { models, loading, error, retry } = useStripchatModels();
@@ -23,6 +81,7 @@ export default function ModelDetails() {
   const model = models.find(
     (item) =>
       String(item.id) === id ||
+      getModelSlug(item.name) === identifier ||
       item.username?.trim().toLowerCase() === identifier
   );
   const gallery = model?.gallery?.length
@@ -192,6 +251,9 @@ export default function ModelDetails() {
             )}
           </div>
         </section>
+        {!loading && !error && model && (
+          <RelatedModels currentModel={model} models={models} />
+        )}
       </main>
     </div>
   );

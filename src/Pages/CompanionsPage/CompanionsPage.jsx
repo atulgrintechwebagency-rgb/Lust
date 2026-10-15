@@ -9,6 +9,7 @@ import {
 import { useIsAuthenticated } from "../../utils/auth";
 import useLikes from "../../hooks/useLikes";
 import useStripchatModels from "../../hooks/useStripchatModels";
+import { getModelSlug } from "../../utils/modelSlug";
 import StripchatApiSkeleton from "../../Components/StripchatApiSkeleton";
 import ModelPagination, {
   MODEL_PAGE_SIZE,
@@ -255,7 +256,13 @@ export default function CompanionsPage() {
                   >
 
                     <Link
-                      to={authenticated ? `/companions/${companion.id}` : "/login"}
+                      to={
+                        authenticated
+                          ? `/companions/${
+                              getModelSlug(companion.name) || companion.id
+                            }`
+                          : "/login"
+                      }
                       className={`ai-companion-image-link ${
                         authenticated ? "" : "guest-locked-card"
                       }`}
